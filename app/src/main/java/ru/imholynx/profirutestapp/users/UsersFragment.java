@@ -24,6 +24,7 @@ import java.util.List;
 
 import ru.imholynx.profirutestapp.R;
 import ru.imholynx.profirutestapp.data.User;
+import ru.imholynx.profirutestapp.userdetail.UserDetailActivity;
 
 public class UsersFragment extends Fragment implements UsersContract.View{
 
@@ -151,7 +152,7 @@ public class UsersFragment extends Fragment implements UsersContract.View{
 
     @Override
     public void showLoadingUsersError() {
-        Toast.makeText(getContext(),R.string.loading_users_error);
+        Toast.makeText(getContext(),R.string.loading_users_error,Toast.LENGTH_LONG);
     }
 
     @Override
@@ -169,7 +170,7 @@ public class UsersFragment extends Fragment implements UsersContract.View{
             mUserItemListener = itemListener;
         }
 
-        public void replaceDate(List<User> users){
+        public void replaceData(List<User> users){
             setList(users);
             notifyDataSetChanged();
         }
@@ -203,8 +204,9 @@ public class UsersFragment extends Fragment implements UsersContract.View{
                 rowView = inflater.inflate(R.layout.user_item,viewGroup,false);
             }
             final User user = getItem(i);
-            TextView firstName = (TextView) rowView.findViewById(R.id.first_name);
-            TextView secondName = (TextView) rowView.findViewById(R.id.second_name);
+            TextView firstName = (TextView) rowView.findViewById(R.id.user_first_name);
+            TextView secondName = (TextView) rowView.findViewById(R.id.user_second_name);
+            ImageView photo = (ImageView) rowView.findViewById(R.id.user_detail_photo);
 
             rowView.setOnClickListener(new View.OnClickListener(){
 

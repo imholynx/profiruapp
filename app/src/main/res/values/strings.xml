@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">profirutestapp</string>
+    <string name="loading">loading...</string>
+    <string name="no_data">no data available</string>
+    <string name="loading_users_error">error during loading list of users</string>
+    <string name="no_users">No friends</string>
 </resources>

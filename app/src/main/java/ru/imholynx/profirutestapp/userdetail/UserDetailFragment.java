@@ -30,7 +30,7 @@ public class UserDetailFragment extends Fragment implements UserDetailContract.V
 
     public static UserDetailFragment newInstance(@NotNull String userId){
         Bundle arguments = new Bundle();
-        argument.putString(ARGUMENT_USER_ID, userId);
+        arguments.putString(ARGUMENT_USER_ID, userId);
         UserDetailFragment fragment = new UserDetailFragment();
         fragment.setArguments(arguments);
         return fragment;
@@ -42,11 +42,11 @@ public class UserDetailFragment extends Fragment implements UserDetailContract.V
         mPresenter.start();
     }
 
-    @android.support.annotation.Nullable
+    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @android.support.annotation.Nullable ViewGroup container, @android.support.annotation.Nullable Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
-        View root = inflater.inflate(R.layout.userdetail_frag, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        View root = inflater.inflate(R.layout.userdetail_frag, container,false);
         mDetailDescription = (TextView) root.findViewById(R.id.user_detail_description);
         mDetailPhoto = (ImageView) root.findViewById(R.id.user_detail_photo);
 
