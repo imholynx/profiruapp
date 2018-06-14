@@ -3,6 +3,7 @@ package ru.imholynx.profirutestapp.data;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.graphics.Bitmap;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,14 +25,19 @@ public final class User {
     private final String mSecondName;
 
     @Nullable
+    @ColumnInfo(name = "photo")
+    private final Bitmap mPhoto;
+
+    @Nullable
     @ColumnInfo(name = "photo_50")
     private final String mPhotoLink;
 
-    public User(@NotNull String mId, @NotNull String mFirstName, @NotNull String mSecondName, @Nullable String mPhotoLink) {
-        this.mId = mId;
-        this.mFirstName = mFirstName;
-        this.mSecondName = mSecondName;
-        this.mPhotoLink = mPhotoLink;
+    public User(@NotNull String id, @NotNull String firstName, @NotNull String secondName,@Nullable Bitmap photo, @Nullable String photoLink) {
+        this.mId = id;
+        this.mFirstName = firstName;
+        this.mSecondName = secondName;
+        this.mPhoto = photo;
+        this.mPhotoLink = photoLink;
     }
 
 
@@ -50,6 +56,10 @@ public final class User {
         return mSecondName;
     }
 
+    @Nullable
+    public Bitmap getPhoto() {
+        return mPhoto;
+    }
     @Nullable
     public String getPhotoLink() {
         return mPhotoLink;
@@ -72,4 +82,5 @@ public final class User {
     public String toString() {
         return mFirstName + " " + mSecondName;
     }
+
 }
