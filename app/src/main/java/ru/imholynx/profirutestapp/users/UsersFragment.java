@@ -71,7 +71,7 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View root =inflater.inflate(R.layout.users_frag,container,flase);
+        View root =inflater.inflate(R.layout.users_frag,container,false);
 
         ListView listView = (ListView) root.findViewById(R.id.users_list);
         listView.setAdapter(mListAdapter);
@@ -132,7 +132,7 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     public void showNoUsers() {
         showNoUsersView(
                 getResources().getString(R.string.no_users),
-                R.drawable.ic_assigment_turned_in_24dp);
+                R.drawable.ic_launcher_foreground);
     }
 
     private void showNoUsersView(String mainText, int iconRes){

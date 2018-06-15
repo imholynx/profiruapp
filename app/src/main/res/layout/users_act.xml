@@ -7,6 +7,10 @@
     android:layout_height="match_parent"
     tools:context=".users.UsersActivity"
     tools:openDrawer="start">
-
+    <FrameLayout
+        android:id="@+id/contentFrame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </FrameLayout>
 
 </android.support.v4.widget.DrawerLayout>
