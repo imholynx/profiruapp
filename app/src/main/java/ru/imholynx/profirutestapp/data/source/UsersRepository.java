@@ -15,24 +15,25 @@ public class UsersRepository implements UsersDataSource {
 
     private static UsersRepository INSTANCE = null;
     private final UsersDataSource mUsersRemoteDataSource;
-    private final UsersDataSource mUsersLocalDataSource;
+    //private final UsersDataSource mUsersLocalDataSource;
 
     Map<String, User> mCachedUsers;
 
     boolean mCacheIsDirty = false;
 
-    private UsersRepository(@NotNull UsersDataSource usersRemoteDataSource,
-                            @NotNull UsersDataSource usersLocaleDataSource){
-        if(usersRemoteDataSource == null || usersLocaleDataSource == null)
+    private UsersRepository(@NotNull UsersDataSource usersRemoteDataSource){
+                            //@NotNull UsersDataSource usersLocaleDataSource){
+        if(usersRemoteDataSource == null)//|| usersLocaleDataSource == null)
             throw new NullPointerException();
         mUsersRemoteDataSource = usersRemoteDataSource;
-        mUsersLocalDataSource = usersLocaleDataSource;
+        //mUsersLocalDataSource = usersLocaleDataSource;
     }
 
-    public static UsersRepository getInstance(UsersDataSource usersRemoteDataSource,
-                                              UsersDataSource usersLocaleDataSource){
+    public static UsersRepository getInstance(UsersDataSource usersRemoteDataSource
+                                              //,UsersDataSource usersLocaleDataSource
+                                              ){
         if(INSTANCE == null)
-            INSTANCE = new UsersRepository(usersRemoteDataSource,usersLocaleDataSource);
+            INSTANCE = new UsersRepository(usersRemoteDataSource);//,usersLocaleDataSource);
         return INSTANCE;
     }
 
@@ -53,7 +54,7 @@ public class UsersRepository implements UsersDataSource {
         if(mCacheIsDirty)
             getUsersFromRemoteDataSource(callback);
         else{
-            mUsersLocalDataSource.getUsers(new LoadUsersCallback() {
+            /*mUsersLocalDataSource.getUsers(new LoadUsersCallback() {
                 @Override
                 public void onUsersLoaded(List<User> users) {
                     refreshCache(users);
@@ -64,7 +65,7 @@ public class UsersRepository implements UsersDataSource {
                 public void onDataNotAvailable() {
                     getUsersFromRemoteDataSource(callback);
                 }
-            });
+            });*/
         }
     }
 
@@ -80,7 +81,7 @@ public class UsersRepository implements UsersDataSource {
             return;
         }
 
-        mUsersLocalDataSource.getUser(userId, new GetUserCallback() {
+        /*mUsersLocalDataSource.getUser(userId, new GetUserCallback() {
             @Override
             public void onUserLoaded(User user) {
                 if(mCachedUsers == null)
@@ -106,7 +107,7 @@ public class UsersRepository implements UsersDataSource {
                     }
                 });
             }
-        });
+        });*/
     }
 
     @Override

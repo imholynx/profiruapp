@@ -6,8 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 
 import ru.imholynx.profirutestapp.R;
 import ru.imholynx.profirutestapp.data.source.UsersRepository;
-import ru.imholynx.profirutestapp.data.source.local.AppDataBase;
-import ru.imholynx.profirutestapp.data.source.local.UsersLocalDataSource;
 import ru.imholynx.profirutestapp.data.source.remote.UsersRemoteDataSource;
 import ru.imholynx.profirutestapp.util.ActivityUtils;
 import ru.imholynx.profirutestapp.util.AppExecutors;
@@ -35,12 +33,12 @@ public class UserDetailActivity extends AppCompatActivity{
                     R.id.contentFrame);
         }
 
-        AppDataBase dataBase = AppDataBase.getInstance(getApplicationContext());
+        //AppDataBase dataBase = AppDataBase.getInstance(getApplicationContext());
 
         new UserDetailPresenter(
                 userId,
-                UsersRepository.getInstance(UsersRemoteDataSource.getInstance(),
-                        UsersLocalDataSource.getInstance(new AppExecutors(), dataBase.userDao())),
+                UsersRepository.getInstance(UsersRemoteDataSource.getInstance()),
+                        //UsersLocalDataSource.getInstance(new AppExecutors(), dataBase.userDao())),
                 userDetailFragment);
     }
 

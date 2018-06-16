@@ -4,4 +4,5 @@
     <string name="no_data">no data available</string>
     <string name="loading_users_error">error during loading list of users</string>
     <string name="no_users">No friends</string>
+    <integer name="com_vk_sdk_AppId">6606761</integer>
 </resources>

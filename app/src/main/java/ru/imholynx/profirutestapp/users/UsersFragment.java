@@ -79,6 +79,7 @@ public class UsersFragment extends Fragment implements UsersContract.View{
 
         mNoUsersView = root.findViewById(R.id.noUsers);
         mNoUserIcon = (ImageView) root.findViewById(R.id.noUserIcon);
+        mNoUsersMainView = root.findViewById(R.id.noUserMain);
 
         final ScrollChildSwipeRefreshLayout swipeRefreshLayout =
                 (ScrollChildSwipeRefreshLayout) root.findViewById(R.id.refresh_layout);
@@ -132,7 +133,7 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     public void showNoUsers() {
         showNoUsersView(
                 getResources().getString(R.string.no_users),
-                R.drawable.ic_launcher_foreground);
+                R.mipmap.ic_launcher);
     }
 
     private void showNoUsersView(String mainText, int iconRes){
@@ -206,7 +207,11 @@ public class UsersFragment extends Fragment implements UsersContract.View{
             final User user = getItem(i);
             TextView firstName = (TextView) rowView.findViewById(R.id.user_first_name);
             TextView secondName = (TextView) rowView.findViewById(R.id.user_second_name);
-            ImageView photo = (ImageView) rowView.findViewById(R.id.user_detail_photo);
+            ImageView photo = (ImageView) rowView.findViewById(R.id.user_photo);
+            firstName.setText(user.getFirstName());
+            secondName.setText(user.getSecondName());
+            if(user.getPhoto()!=null)
+                photo.setImageBitmap(user.getPhoto());
 
             rowView.setOnClickListener(new View.OnClickListener(){
 
