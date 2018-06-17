@@ -2,6 +2,7 @@ package ru.imholynx.profirutestapp.users;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -70,6 +71,8 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //TODO delete
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build()); // or .detectAll() for all detectable problems .penaltyLog() .build());
 
         View root =inflater.inflate(R.layout.users_frag,container,false);
 
