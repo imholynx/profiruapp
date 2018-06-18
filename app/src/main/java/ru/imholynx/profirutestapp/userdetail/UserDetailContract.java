@@ -19,5 +19,6 @@ public interface UserDetailContract {
     }
 
     interface Presenter extends BasePresenter{
+        void loadUser(String userId);
     }
 }

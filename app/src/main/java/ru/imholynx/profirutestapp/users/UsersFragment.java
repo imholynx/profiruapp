@@ -1,16 +1,21 @@
 package ru.imholynx.profirutestapp.users;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.v4.app.Fragment;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -47,6 +52,7 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         mListAdapter = new UsersAdapter(new ArrayList<User>(0), mItemListener);
     }
 
@@ -71,8 +77,6 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        //TODO delete
-        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build()); // or .detectAll() for all detectable problems .penaltyLog() .build());
 
         View root =inflater.inflate(R.layout.users_frag,container,false);
 
@@ -84,6 +88,7 @@ public class UsersFragment extends Fragment implements UsersContract.View{
         mNoUserIcon = (ImageView) root.findViewById(R.id.noUserIcon);
         mNoUsersMainView = root.findViewById(R.id.noUserMain);
 
+
         final ScrollChildSwipeRefreshLayout swipeRefreshLayout =
                 (ScrollChildSwipeRefreshLayout) root.findViewById(R.id.refresh_layout);
         swipeRefreshLayout.setColorSchemeColors(
@@ -91,7 +96,6 @@ public class UsersFragment extends Fragment implements UsersContract.View{
                 ContextCompat.getColor(getActivity(),R.color.colorAccent),
                 ContextCompat.getColor(getActivity(), R.color.colorPrimaryDark));
         swipeRefreshLayout.setScrollUpChild(listView);
-
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -105,8 +109,8 @@ public class UsersFragment extends Fragment implements UsersContract.View{
 
     UserItemListener mItemListener = new UserItemListener(){
         @Override
-        public void onUserClick(User clickedUser) {
-            mPresenter.openUserDetails(clickedUser);
+        public void onUserClick(User clickedUser,View view) {
+            mPresenter.openUserDetails(clickedUser,view);
         }
     };
 
@@ -127,7 +131,6 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     @Override
     public void showUsers(List<User> users) {
         mListAdapter.replaceData(users);
-
         mUsersView.setVisibility(View.VISIBLE);
         mNoUsersView.setVisibility(View.GONE);
     }
@@ -148,10 +151,12 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     }
 
     @Override
-    public void showUserDetailsUi(String userId) {
+    public void showUserDetailsUi(String userId,View photoView) {
         Intent intent = new Intent(getContext(), UserDetailActivity.class);
         intent.putExtra(UserDetailActivity.EXTRA_USER_ID, userId);
-        startActivity(intent);
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
+                Pair.create(photoView.findViewById(R.id.user_photo),"user_photo"));
+        startActivity(intent,options.toBundle());
     }
 
     @Override
@@ -201,16 +206,17 @@ public class UsersFragment extends Fragment implements UsersContract.View{
         }
 
         @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
+        public View getView(int i,final View view, ViewGroup viewGroup) {
             View rowView = view;
             if(rowView == null){
                 LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
                 rowView = inflater.inflate(R.layout.user_item,viewGroup,false);
             }
+            //rowView.getLayoutParams().height = viewGroup.getHeight();
             final User user = getItem(i);
             TextView firstName = (TextView) rowView.findViewById(R.id.user_first_name);
             TextView secondName = (TextView) rowView.findViewById(R.id.user_second_name);
-            ImageView photo = (ImageView) rowView.findViewById(R.id.user_photo);
+            final ImageView photo = (ImageView) rowView.findViewById(R.id.user_photo);
             firstName.setText(user.getFirstName());
             secondName.setText(user.getSecondName());
             if(user.getPhoto()!=null)
@@ -220,7 +226,7 @@ public class UsersFragment extends Fragment implements UsersContract.View{
 
                 @Override
                 public void onClick(View view) {
-                    mUserItemListener.onUserClick(user);
+                    mUserItemListener.onUserClick(user,view);
                 }
             });
 
@@ -232,6 +238,6 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     }
 
     public interface UserItemListener {
-        void onUserClick(User clickedUser);
+        void onUserClick(User clickedUser, View view);
     }
 }

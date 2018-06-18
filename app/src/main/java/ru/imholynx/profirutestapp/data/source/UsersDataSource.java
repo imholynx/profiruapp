@@ -12,13 +12,13 @@ public interface UsersDataSource {
         void onDataNotAvailable();
     }
 
-    interface GetUserCallback{
+    interface LoadUserCallback{
         void onUserLoaded(User user);
         void onDataNotAvailable();
     }
 
     void getUsers(@NotNull LoadUsersCallback callback);
-    void getUser(@NotNull String userId,@NotNull GetUserCallback callback);
+    void getUser(@NotNull String userId,@NotNull LoadUserCallback callback);
     void refreshUsers();
 
 }

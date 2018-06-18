@@ -1,10 +1,10 @@
 package ru.imholynx.profirutestapp.data.source.remote;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
@@ -13,6 +13,7 @@ import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
 import com.vk.sdk.api.model.VKApiUser;
+import com.vk.sdk.api.model.VKPhotoArray;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -21,14 +22,11 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import ru.imholynx.profirutestapp.R;
 import ru.imholynx.profirutestapp.data.User;
 import ru.imholynx.profirutestapp.data.source.UsersDataSource;
 
@@ -40,21 +38,21 @@ public class UsersRemoteDataSource implements UsersDataSource {
 
     static {
         USERS_SERVICE_DATA = new LinkedHashMap<>();
-        USERS_SERVICE_DATA.put("123", new User("123", "Ilya", "oputin", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg"));
-        USERS_SERVICE_DATA.put("234", new User("234", "Petya", "sidorov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_4444), "https://pp.userapi.com/c623824/v623824643/29d14/6iJAz7zCnro.jpg"));
-        USERS_SERVICE_DATA.put("345", new User("345", "vasya", "Ivanov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg"));
-        USERS_SERVICE_DATA.put("4", new User("4", "Ilya4", "oputin", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg"));
-        USERS_SERVICE_DATA.put("5", new User("5", "Petya5", "sidorov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_4444), "https://pp.userapi.com/c623824/v623824643/29d14/6iJAz7zCnro.jpg"));
-        USERS_SERVICE_DATA.put("6", new User("6", "vasya6", "Ivanov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg"));
-        USERS_SERVICE_DATA.put("7", new User("7", "Ilya7", "oputin", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg"));
-        USERS_SERVICE_DATA.put("8", new User("8", "Petya8", "sidorov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_4444), "https://pp.userapi.com/c623824/v623824643/29d14/6iJAz7zCnro.jpg"));
-        USERS_SERVICE_DATA.put("9", new User("9", "vasya9", "Ivanov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg"));
-        USERS_SERVICE_DATA.put("10", new User("10", "Ilya10", "oputin", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg"));
-        USERS_SERVICE_DATA.put("11", new User("11", "Petya11", "sidorov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_4444), "https://pp.userapi.com/c623824/v623824643/29d14/6iJAz7zCnro.jpg"));
-        USERS_SERVICE_DATA.put("12", new User("12", "vasya12", "Ivanov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg"));
-        USERS_SERVICE_DATA.put("13", new User("13", "Ilya13", "oputin", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg"));
-        USERS_SERVICE_DATA.put("14", new User("14", "Petya14", "sidorov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_4444), "https://pp.userapi.com/c623824/v623824643/29d14/6iJAz7zCnro.jpg"));
-        USERS_SERVICE_DATA.put("15", new User("15", "vasya15", "Ivanov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg"));
+        USERS_SERVICE_DATA.put("123", new User("123", "Ilya", "oputin", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg", null, null));
+        USERS_SERVICE_DATA.put("234", new User("234", "Petya", "sidorov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_4444), "https://pp.userapi.com/c623824/v623824643/29d14/6iJAz7zCnro.jpg", null, null));
+        USERS_SERVICE_DATA.put("345", new User("345", "vasya", "Ivanov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg", null, null));
+        USERS_SERVICE_DATA.put("4", new User("4", "Ilya4", "oputin", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg", null, null));
+        USERS_SERVICE_DATA.put("5", new User("5", "Petya5", "sidorov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_4444), "https://pp.userapi.com/c623824/v623824643/29d14/6iJAz7zCnro.jpg", null, null));
+        USERS_SERVICE_DATA.put("6", new User("6", "vasya6", "Ivanov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg", null, null));
+        USERS_SERVICE_DATA.put("7", new User("7", "Ilya7", "oputin", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg", null, null));
+        USERS_SERVICE_DATA.put("8", new User("8", "Petya8", "sidorov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_4444), "https://pp.userapi.com/c623824/v623824643/29d14/6iJAz7zCnro.jpg", null, null));
+        USERS_SERVICE_DATA.put("9", new User("9", "vasya9", "Ivanov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg", null, null));
+        USERS_SERVICE_DATA.put("10", new User("10", "Ilya10", "oputin", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg", null, null));
+        USERS_SERVICE_DATA.put("11", new User("11", "Petya11", "sidorov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_4444), "https://pp.userapi.com/c623824/v623824643/29d14/6iJAz7zCnro.jpg", null, null));
+        USERS_SERVICE_DATA.put("12", new User("12", "vasya12", "Ivanov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg", null, null));
+        USERS_SERVICE_DATA.put("13", new User("13", "Ilya13", "oputin", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg", null, null));
+        USERS_SERVICE_DATA.put("14", new User("14", "Petya14", "sidorov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_4444), "https://pp.userapi.com/c623824/v623824643/29d14/6iJAz7zCnro.jpg", null, null));
+        USERS_SERVICE_DATA.put("15", new User("15", "vasya15", "Ivanov", Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888), "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg", null, null));
     }
 
     public static UsersRemoteDataSource getInstance() {
@@ -69,20 +67,17 @@ public class UsersRemoteDataSource implements UsersDataSource {
 
     @Override
     public void getUsers(@NotNull final LoadUsersCallback callback) {
-
         class GetUsersTask implements Runnable{
             LoadUsersCallback callback;
             GetUsersTask(LoadUsersCallback callback){this.callback = callback;}
             @Override
             public void run() {
                 final ArrayList<User> users = new ArrayList<>();
-
-                VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_50"));
-
-
+                VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,photo_100","order","hints"));
+                //VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_ID, "kubuntu",VKApiConst.FIELDS,"photo"));
                 if (request != null) {
                     request.unregisterObject();
-                    request.executeWithListener(new VKRequest.VKRequestListener() {
+                    request.executeSyncWithListener(new VKRequest.VKRequestListener() {
                         @Override
                         public void onComplete(VKResponse response) {
                             String str = response.json.toString();
@@ -94,14 +89,14 @@ public class UsersRemoteDataSource implements UsersDataSource {
                                     VKApiUser user = new VKApiUser(jsonArray.getJSONObject(i));
                                     Bitmap photo = null;
                                     try {
-                                        InputStream inputStream = new java.net.URL(user.photo_50).openStream();
+                                        InputStream inputStream = new java.net.URL(user.photo_100).openStream();
                                         photo = BitmapFactory.decodeStream(inputStream);
                                     } catch (MalformedURLException e) {
                                         e.printStackTrace();
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
-                                    users.add(new User(String.valueOf(user.id), user.first_name, user.last_name, photo, user.photo_50));
+                                    users.add(new User(String.valueOf(user.id), user.first_name, user.last_name, photo, user.photo_100, null, null));
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -125,103 +120,95 @@ public class UsersRemoteDataSource implements UsersDataSource {
                         }
                     });
                 }
-                callback.onUsersLoaded(users);
+                Handler refresh = new Handler((Looper.getMainLooper()));
+                refresh.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onUsersLoaded(users);
+                    }
+                });
             }
         }
         Thread t = new Thread(new GetUsersTask(callback));
         t.start();
-        //UsersLoader usersLoader = new UsersLoader(callback);
-        //usersLoader.execute();
         /*
         callback.onUsersLoaded(users);//new ArrayList<User>(USERS_SERVICE_DATA.values()));*/
     }
 
     @Override
-    public void getUser(@NotNull String userId, final @NotNull GetUserCallback callback) {
-        final User user = USERS_SERVICE_DATA.get(userId);
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
+    public void getUser(@NotNull final String userId, final @NotNull LoadUserCallback callback) {
+        class GetUserTask implements Runnable{
+            LoadUserCallback callback;
+            GetUserTask(LoadUserCallback callback){this.callback = callback;}
             @Override
             public void run() {
-                callback.onUserLoaded(user);
+                final User user= null;
+                VKRequest request = new VKRequest("photos.getAll",
+                        VKParameters.from(VKApiConst.OWNER_ID, userId, VKApiConst.ALBUM_ID,"profile", VKApiConst.REV,"1"), VKPhotoArray.class);
+                //VKRequest request = new VKRequest("photos.get", VKParameters.from(VKApiConst.OWNER_ID,
+                       // userId, VKApiConst.ALBUM_ID, "profile"), VKRequest.HttpMethod.GET, VKPhotoArray.class);
+                //VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,photo_100","order","hints"));
+                //VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_ID, "kubuntu",VKApiConst.FIELDS,"photo"));
+                if (request != null) {
+                    request.unregisterObject();
+                    request.executeSyncWithListener(new VKRequest.VKRequestListener() {
+                        @Override
+                        public void onComplete(VKResponse response) {
+                            String str = response.json.toString();
+                            try {
+                                JSONArray jsonArray = response.json.getJSONObject("response").getJSONArray("items");
+                                int length = jsonArray.length();
+                                final VKApiUser[] vkApiUsers = new VKApiUser[length];
+                                for (int i = 0; i < length; i++) {
+                                    VKApiUser user = new VKApiUser(jsonArray.getJSONObject(i));
+                                    Bitmap photo = null;
+                                    try {
+                                        InputStream inputStream = new java.net.URL(user.photo_100).openStream();
+                                        photo = BitmapFactory.decodeStream(inputStream);
+                                    } catch (MalformedURLException e) {
+                                        e.printStackTrace();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    //users.add(new User(String.valueOf(user.id), user.first_name, user.last_name, photo, user.photo_100, null, null));
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onError(VKError error) {
+                            String str = error.toString();
+                        }
+
+                        @Override
+                        public void onProgress(VKRequest.VKProgressType progressType, long bytesLoaded,
+                                               long bytesTotal) {
+                            // you can show progress of the request if you want
+                        }
+
+                        @Override
+                        public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
+                            int a = attemptNumber;
+                        }
+                    });
+                }
+                Handler refresh = new Handler((Looper.getMainLooper()));
+                refresh.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onUserLoaded(user);
+                    }
+                });
             }
-        }, SERVICE_LATENCY_IN_MILLS);
+        }
+        Thread t = new Thread(new GetUserTask(callback));
+        t.start();
     }
 
     @Override
     public void refreshUsers() {
-
-    }
-
-    private class UsersLoader extends AsyncTask<Object, Object, Object> {
-
-        private LoadUsersCallback callback;
-
-        public UsersLoader(LoadUsersCallback callback){
-            this.callback = callback;
-        }
-
-        @Override
-        protected void onPostExecute(Object o) {
-            callback.onUsersLoaded((List<User>)o);
-            System.out.println(o.toString());
-            super.onPostExecute(o);
-        }
-
-        @Override
-        protected Object doInBackground(Object... objects) {
-            final ArrayList<User> users = new ArrayList<>();
-
-            VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_50"));
-
-
-            if (request != null) {
-                request.unregisterObject();
-                request.executeWithListener(new VKRequest.VKRequestListener() {
-                    @Override
-                    public void onComplete(VKResponse response) {
-                        String str = response.json.toString();
-                        try {
-                            JSONArray jsonArray = response.json.getJSONObject("response").getJSONArray("items");
-                            int length = jsonArray.length();
-                            final VKApiUser[] vkApiUsers = new VKApiUser[length];
-                            for (int i = 0; i < length; i++) {
-                                VKApiUser user = new VKApiUser(jsonArray.getJSONObject(i));
-                                Bitmap photo = null;
-                                try {
-                                    InputStream inputStream = new java.net.URL(user.photo_50).openStream();
-                                    photo = BitmapFactory.decodeStream(inputStream);
-                                } catch (MalformedURLException e) {
-                                    e.printStackTrace();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                users.add(new User(String.valueOf(user.id), user.first_name, user.last_name, photo, user.photo_50));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onError(VKError error) {
-                        String str = error.toString();
-                    }
-
-                    @Override
-                    public void onProgress(VKRequest.VKProgressType progressType, long bytesLoaded,
-                                           long bytesTotal) {
-                        // you can show progress of the request if you want
-                    }
-
-                    @Override
-                    public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
-
-                    }
-                });
-            }
-            return users;
-        }
 
     }
 }

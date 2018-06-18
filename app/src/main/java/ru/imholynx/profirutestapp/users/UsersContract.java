@@ -1,5 +1,7 @@
 package ru.imholynx.profirutestapp.users;
 
+import android.util.AndroidException;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -12,7 +14,7 @@ public interface UsersContract {
     interface View extends BaseView<Presenter> {
         void setLoadingIndication(boolean active);
         void showUsers(List<User> users);
-        void showUserDetailsUi(String userId);
+        void showUserDetailsUi(String userId ,android.view.View view);
         void showLoadingUsersError();
         void showNoUsers();
         boolean isActive();
@@ -21,7 +23,7 @@ public interface UsersContract {
     interface Presenter extends BasePresenter{
         void result(int requestCode,int resultCode);
         void loadUsers(boolean forcedUpdate);
-        void openUserDetails(@NotNull User requestedUser);
+        void openUserDetails(@NotNull User requestedUser, android.view.View view);
     }
 
 }

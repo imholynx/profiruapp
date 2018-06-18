@@ -70,18 +70,17 @@ public class UsersRepository implements UsersDataSource {
     }
 
     @Override
-    public void getUser(@NotNull final String userId, @NotNull final GetUserCallback callback) {
+    public void getUser(@NotNull final String userId, @NotNull final LoadUserCallback callback) {
         if(userId == null || callback == null)
             throw new NullPointerException();
 
-        User cachedUser = getUserWithId(userId);
+        /*User cachedUser = getUserWithId(userId);
 
-        if (cachedUser != null){
+        if (cachedUser != null || cachedUser.getLargePhoto() != null){
             callback.onUserLoaded(cachedUser);
             return;
-        }
-
-        /*mUsersLocalDataSource.getUser(userId, new GetUserCallback() {
+        }*/
+        mUsersRemoteDataSource.getUser(userId, new LoadUserCallback() {
             @Override
             public void onUserLoaded(User user) {
                 if(mCachedUsers == null)
@@ -92,22 +91,9 @@ public class UsersRepository implements UsersDataSource {
 
             @Override
             public void onDataNotAvailable() {
-                mUsersRemoteDataSource.getUser(userId, new GetUserCallback() {
-                    @Override
-                    public void onUserLoaded(User user) {
-                        if(mCachedUsers == null)
-                            mCachedUsers = new LinkedHashMap<>();
-                        mCachedUsers.put(user.getId(),user);
-                        callback.onUserLoaded(user);
-                    }
-
-                    @Override
-                    public void onDataNotAvailable() {
-                        callback.onDataNotAvailable();
-                    }
-                });
+                callback.onDataNotAvailable();
             }
-        });*/
+        });
     }
 
     @Override

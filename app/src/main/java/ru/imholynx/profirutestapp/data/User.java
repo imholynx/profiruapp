@@ -2,7 +2,6 @@ package ru.imholynx.profirutestapp.data;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.graphics.Bitmap;
 
@@ -30,33 +29,41 @@ public final class User {
     private final Bitmap mPhoto;
 
     @Nullable
-    @ColumnInfo(name = "photo_50")
+    @ColumnInfo(name = "photo_link")
     private final String mPhotoLink;
 
-    public User(@NotNull String id, @NotNull String firstName, @NotNull String secondName,@Nullable Bitmap photo, @Nullable String photoLink) {
+    @Nullable
+    @ColumnInfo(name = "large_photo")
+    private final Bitmap mLargePhoto;
+
+    @Nullable
+    @ColumnInfo(name = "large_photo_link")
+    private final String mLargePhotoLink;
+
+
+
+    public User(@NotNull String id, @NotNull String firstName, @NotNull String secondName, @Nullable Bitmap photo, @Nullable String photoLink, @Nullable Bitmap largePhoto, @Nullable String largePhotoLink) {
         this.mId = id;
         this.mFirstName = firstName;
         this.mSecondName = secondName;
         this.mPhoto = photo;
         this.mPhotoLink = photoLink;
+        this.mLargePhoto = largePhoto;
+        this.mLargePhotoLink = largePhotoLink;
     }
-
 
     @NotNull
     public String getId() {
         return mId;
     }
-
     @NotNull
     public String getFirstName() {
         return mFirstName;
     }
-
     @NotNull
     public String getSecondName() {
         return mSecondName;
     }
-
     @Nullable
     public Bitmap getPhoto() {
         return mPhoto;
@@ -65,6 +72,10 @@ public final class User {
     public String getPhotoLink() {
         return mPhotoLink;
     }
+    @Nullable
+    public Bitmap getLargePhoto() { return mLargePhoto; }
+    @Nullable
+    public String getLargePhotoLink() { return mLargePhotoLink; }
 
     @Override
     public boolean equals(Object obj) {
@@ -83,5 +94,7 @@ public final class User {
     public String toString() {
         return mFirstName + " " + mSecondName;
     }
+
+
 
 }

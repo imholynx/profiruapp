@@ -1,6 +1,7 @@
 package ru.imholynx.profirutestapp.users;
 
 import android.app.Activity;
+import android.view.View;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -79,9 +80,9 @@ class UsersPresenter  implements UsersContract.Presenter{
     }
 
     @Override
-    public void openUserDetails(@NotNull User requestedUser) {
+    public void openUserDetails(@NotNull User requestedUser, View view) {
         if(requestedUser == null)
             throw new NullPointerException("requestedUser cannot be null");
-        mUsersView.showUserDetailsUi(requestedUser.getId());
+        mUsersView.showUserDetailsUi(requestedUser.getId(),view);
     }
 }

@@ -48,7 +48,7 @@ public class UserDetailFragment extends Fragment implements UserDetailContract.V
 
         View root = inflater.inflate(R.layout.userdetail_frag, container,false);
         mDetailDescription = (TextView) root.findViewById(R.id.user_detail_description);
-        mDetailPhoto = (ImageView) root.findViewById(R.id.user_detail_photo);
+        mDetailPhoto = (ImageView) root.findViewById(R.id.user_photo);
 
         return root;
     }

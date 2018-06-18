@@ -41,7 +41,7 @@ public class UserDetailPresenter implements UserDetailContract.Presenter {
 
     private void openUser() {
         mUserDetailView.setLoadingIndicator(true);
-        mUsersRepository.getUser(mUserId, new UsersDataSource.GetUserCallback() {
+        mUsersRepository.getUser(mUserId, new UsersDataSource.LoadUserCallback() {
             @Override
             public void onUserLoaded(User user) {
                 if(!mUserDetailView.isActive())
@@ -74,4 +74,24 @@ public class UserDetailPresenter implements UserDetailContract.Presenter {
             mUserDetailView.showPhoto(photo);
     }
 
+    @Override
+    public void loadUser(String userId) {
+        mUsersRepository.getUser(userId, new UsersDataSource.LoadUserCallback() {
+            @Override
+            public void onUserLoaded(User user) {
+                if (!mUserDetailView.isActive())
+                    return;
+                if(user==null)
+                    return;
+                if(user.getLargePhoto()==null)
+                    return;
+                mUserDetailView.showPhoto(user.getLargePhoto());
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+
+            }
+        });
+    }
 }
