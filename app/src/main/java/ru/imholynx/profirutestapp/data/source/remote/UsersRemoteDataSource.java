@@ -69,8 +69,69 @@ public class UsersRemoteDataSource implements UsersDataSource {
 
     @Override
     public void getUsers(@NotNull final LoadUsersCallback callback) {
-        UsersLoader usersLoader = new UsersLoader(callback);
-        usersLoader.execute();
+
+        class GetUsersTask implements Runnable{
+            LoadUsersCallback callback;
+            GetUsersTask(LoadUsersCallback callback){this.callback = callback;}
+            @Override
+            public void run() {
+                final ArrayList<User> users = new ArrayList<>();
+
+                VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_50"));
+
+
+                if (request != null) {
+                    request.unregisterObject();
+                    request.executeWithListener(new VKRequest.VKRequestListener() {
+                        @Override
+                        public void onComplete(VKResponse response) {
+                            String str = response.json.toString();
+                            try {
+                                JSONArray jsonArray = response.json.getJSONObject("response").getJSONArray("items");
+                                int length = jsonArray.length();
+                                final VKApiUser[] vkApiUsers = new VKApiUser[length];
+                                for (int i = 0; i < length; i++) {
+                                    VKApiUser user = new VKApiUser(jsonArray.getJSONObject(i));
+                                    Bitmap photo = null;
+                                    try {
+                                        InputStream inputStream = new java.net.URL(user.photo_50).openStream();
+                                        photo = BitmapFactory.decodeStream(inputStream);
+                                    } catch (MalformedURLException e) {
+                                        e.printStackTrace();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    users.add(new User(String.valueOf(user.id), user.first_name, user.last_name, photo, user.photo_50));
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onError(VKError error) {
+                            String str = error.toString();
+                        }
+
+                        @Override
+                        public void onProgress(VKRequest.VKProgressType progressType, long bytesLoaded,
+                                               long bytesTotal) {
+                            // you can show progress of the request if you want
+                        }
+
+                        @Override
+                        public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
+                            int a = attemptNumber;
+                        }
+                    });
+                }
+                callback.onUsersLoaded(users);
+            }
+        }
+        Thread t = new Thread(new GetUsersTask(callback));
+        t.start();
+        //UsersLoader usersLoader = new UsersLoader(callback);
+        //usersLoader.execute();
         /*
         callback.onUsersLoaded(users);//new ArrayList<User>(USERS_SERVICE_DATA.values()));*/
     }
