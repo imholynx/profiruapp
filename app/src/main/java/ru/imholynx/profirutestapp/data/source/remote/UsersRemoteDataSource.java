@@ -156,7 +156,6 @@ public class UsersRemoteDataSource implements UsersDataSource {
                             String photoId = response.json.getJSONArray("response").getJSONObject(0).getString("photo_id");
 //                            JSONArray a = photoId.getJSONArray();
                             //.getJSONObject(0).getString("photo_id");
-                            //Log.d(getClass().getName(),photoId);
                             VKRequest request = new VKRequest("photos.getById",VKParameters.from(VKApiConst.PHOTOS,photoId));
                             request.unregisterObject();
                             request.executeSyncWithListener(new VKRequest.VKRequestListener() {
