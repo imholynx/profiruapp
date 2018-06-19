@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
@@ -12,12 +13,14 @@ import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
+import com.vk.sdk.api.model.VKApiPhoto;
 import com.vk.sdk.api.model.VKApiUser;
 import com.vk.sdk.api.model.VKPhotoArray;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -143,57 +146,37 @@ public class UsersRemoteDataSource implements UsersDataSource {
             @Override
             public void run() {
                 final User user= null;
-                VKRequest request = new VKRequest("photos.getAll",
-                        VKParameters.from(VKApiConst.OWNER_ID, userId, VKApiConst.ALBUM_ID,"profile", VKApiConst.REV,"1"), VKPhotoArray.class);
-                //VKRequest request = new VKRequest("photos.get", VKParameters.from(VKApiConst.OWNER_ID,
-                       // userId, VKApiConst.ALBUM_ID, "profile"), VKRequest.HttpMethod.GET, VKPhotoArray.class);
-                //VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,photo_100","order","hints"));
-                //VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_ID, "kubuntu",VKApiConst.FIELDS,"photo"));
-                if (request != null) {
-                    request.unregisterObject();
-                    request.executeSyncWithListener(new VKRequest.VKRequestListener() {
-                        @Override
-                        public void onComplete(VKResponse response) {
-                            String str = response.json.toString();
-                            try {
-                                JSONArray jsonArray = response.json.getJSONObject("response").getJSONArray("items");
-                                int length = jsonArray.length();
-                                final VKApiUser[] vkApiUsers = new VKApiUser[length];
-                                for (int i = 0; i < length; i++) {
-                                    VKApiUser user = new VKApiUser(jsonArray.getJSONObject(i));
-                                    Bitmap photo = null;
+                VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_ID,userId,VKApiConst.FIELDS,"photo_id"));
+                request.unregisterObject();
+                request.executeSyncWithListener(new VKRequest.VKRequestListener() {
+                    @Override
+                    public void onComplete(VKResponse response) {
+                        String str = response.json.toString();
+                        try {
+                            String photoId = response.json.getJSONArray("response").getJSONObject(0).getString("photo_id");
+//                            JSONArray a = photoId.getJSONArray();
+                            //.getJSONObject(0).getString("photo_id");
+                            //Log.d(getClass().getName(),photoId);
+                            VKRequest request = new VKRequest("photos.getById",VKParameters.from(VKApiConst.PHOTOS,photoId));
+                            request.unregisterObject();
+                            request.executeSyncWithListener(new VKRequest.VKRequestListener() {
+                                @Override
+                                public void onComplete(VKResponse response) {
+                                    String str = response.json.toString();
                                     try {
-                                        InputStream inputStream = new java.net.URL(user.photo_100).openStream();
-                                        photo = BitmapFactory.decodeStream(inputStream);
-                                    } catch (MalformedURLException e) {
-                                        e.printStackTrace();
-                                    } catch (IOException e) {
+                                        VKApiPhoto photo = new VKApiPhoto(response.json.getJSONArray("response").getJSONObject(0));
+                                        System.out.println(photo.photo_2560);
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
-                                    //users.add(new User(String.valueOf(user.id), user.first_name, user.last_name, photo, user.photo_100, null, null));
                                 }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                            });
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
+                    }
+                });
 
-                        @Override
-                        public void onError(VKError error) {
-                            String str = error.toString();
-                        }
-
-                        @Override
-                        public void onProgress(VKRequest.VKProgressType progressType, long bytesLoaded,
-                                               long bytesTotal) {
-                            // you can show progress of the request if you want
-                        }
-
-                        @Override
-                        public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
-                            int a = attemptNumber;
-                        }
-                    });
-                }
                 Handler refresh = new Handler((Looper.getMainLooper()));
                 refresh.post(new Runnable() {
                     @Override
