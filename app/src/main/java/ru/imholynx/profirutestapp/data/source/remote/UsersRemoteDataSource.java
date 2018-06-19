@@ -104,6 +104,13 @@ public class UsersRemoteDataSource implements UsersDataSource {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+                            Handler refresh = new Handler((Looper.getMainLooper()));
+                            refresh.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    callback.onUsersLoaded(users);
+                                }
+                            });
                         }
 
                         @Override
@@ -123,13 +130,6 @@ public class UsersRemoteDataSource implements UsersDataSource {
                         }
                     });
                 }
-                Handler refresh = new Handler((Looper.getMainLooper()));
-                refresh.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onUsersLoaded(users);
-                    }
-                });
             }
         }
         Thread t = new Thread(new GetUsersTask(callback));
@@ -148,7 +148,7 @@ public class UsersRemoteDataSource implements UsersDataSource {
                 final User user= null;
                 VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_ID,userId,VKApiConst.FIELDS,"photo_id"));
                 request.unregisterObject();
-                request.executeSyncWithListener(new VKRequest.VKRequestListener() {
+                request.executeWithListener(new VKRequest.VKRequestListener() {
                     @Override
                     public void onComplete(VKResponse response) {
                         String str = response.json.toString();
@@ -156,31 +156,44 @@ public class UsersRemoteDataSource implements UsersDataSource {
                             String photoId = response.json.getJSONArray("response").getJSONObject(0).getString("photo_id");
 //                            JSONArray a = photoId.getJSONArray();
                             //.getJSONObject(0).getString("photo_id");
-                            VKRequest request = new VKRequest("photos.getById",VKParameters.from(VKApiConst.PHOTOS,photoId));
-                            request.unregisterObject();
-                            request.executeSyncWithListener(new VKRequest.VKRequestListener() {
+                            Log.d(this.getClass().getName(),photoId);
+                            VKRequest request2 = new VKRequest("photos.getById",VKParameters.from(VKApiConst.PHOTOS,photoId,VKApiConst.PHOTO_SIZES,1,VKApiConst.EXTENDED,1));
+                            request2.unregisterObject();
+                            request2.executeWithListener(new VKRequest.VKRequestListener() {
                                 @Override
                                 public void onComplete(VKResponse response) {
                                     String str = response.json.toString();
                                     try {
-                                        VKApiPhoto photo = new VKApiPhoto(response.json.getJSONArray("response").getJSONObject(0));
-                                        System.out.println(photo.photo_2560);
+                                        JSONArray jsonArray1 = response.json.
+                                                getJSONArray("response").
+                                                getJSONObject(0).
+                                                getJSONArray("sizes");
+
+                                        //JSONArray jsonArray1 = jsonArray.getJSONObject(0).getJSONArray("sizes");
+                                        int arrLength = jsonArray1.length();
+                                        JSONObject jsonObject = jsonArray1.getJSONObject(arrLength-1);
+                                        String photo = jsonObject.getString("src");
+                                        Log.d("","");
+                                        //VKApiPhoto photo = new VKApiPhoto(response.json.getJSONArray("response").getJSONArray("sizes").getJSONObject());
+
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
+                                    Handler refresh = new Handler((Looper.getMainLooper()));
+                                    refresh.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if(user!=null)
+                                                callback.onUserLoaded(user);
+                                            else
+                                                callback.onDataNotAvailable();
+                                        }
+                                    });
                                 }
                             });
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                    }
-                });
-
-                Handler refresh = new Handler((Looper.getMainLooper()));
-                refresh.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onUserLoaded(user);
                     }
                 });
             }
