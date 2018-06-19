@@ -15,7 +15,6 @@
         android:transitionName="user_photo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@android:drawable/star_big_on"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/user_detail_description"/>
     <TextView

@@ -70,13 +70,17 @@ public class UsersRemoteDataSource implements UsersDataSource {
 
     @Override
     public void getUsers(@NotNull final LoadUsersCallback callback) {
-        class GetUsersTask implements Runnable{
+        class GetUsersTask implements Runnable {
             LoadUsersCallback callback;
-            GetUsersTask(LoadUsersCallback callback){this.callback = callback;}
+
+            GetUsersTask(LoadUsersCallback callback) {
+                this.callback = callback;
+            }
+
             @Override
             public void run() {
                 final ArrayList<User> users = new ArrayList<>();
-                VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,photo_100","order","hints"));
+                VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,photo_100", "order", "hints"));
                 //VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_ID, "kubuntu",VKApiConst.FIELDS,"photo"));
                 if (request != null) {
                     request.unregisterObject();
@@ -104,7 +108,7 @@ public class UsersRemoteDataSource implements UsersDataSource {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-                            Handler refresh = new Handler((Looper.getMainLooper()));
+                            Handler refresh = new Handler(Looper.getMainLooper());
                             refresh.post(new Runnable() {
                                 @Override
                                 public void run() {
@@ -112,40 +116,76 @@ public class UsersRemoteDataSource implements UsersDataSource {
                                 }
                             });
                         }
-
-                        @Override
-                        public void onError(VKError error) {
-                            String str = error.toString();
-                        }
-
-                        @Override
-                        public void onProgress(VKRequest.VKProgressType progressType, long bytesLoaded,
-                                               long bytesTotal) {
-                            // you can show progress of the request if you want
-                        }
-
-                        @Override
-                        public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
-                            int a = attemptNumber;
-                        }
                     });
                 }
             }
         }
         Thread t = new Thread(new GetUsersTask(callback));
         t.start();
-        /*
-        callback.onUsersLoaded(users);//new ArrayList<User>(USERS_SERVICE_DATA.values()));*/
     }
 
     @Override
-    public void getUser(@NotNull final String userId, final @NotNull LoadUserCallback callback) {
-        class GetUserTask implements Runnable{
-            LoadUserCallback callback;
-            GetUserTask(LoadUserCallback callback){this.callback = callback;}
+    public void getPhoto(@NotNull final String userId, final @NotNull LoadPhotoCallback callback) {
+        class GetPhotoTask implements Runnable {
+            LoadPhotoCallback callback;
+
+            GetPhotoTask(LoadPhotoCallback callback) {
+                this.callback = callback;
+            }
+
             @Override
             public void run() {
-                final User user= null;
+                VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_ID, userId, VKApiConst.FIELDS, "photo_max"));
+                request.unregisterObject();
+                request.executeSyncWithListener(new VKRequest.VKRequestListener() {
+                    @Override
+                    public void onComplete(VKResponse response) {
+                        String str = response.json.toString();
+                        Bitmap photo = null;
+                        try {
+                            String photoUrl = response.json.
+                                    getJSONArray("response").
+                                    getJSONObject(0).getString("photo_max");
+                            try {
+                                InputStream inputStream = new java.net.URL(photoUrl).openStream();
+                                photo = BitmapFactory.decodeStream(inputStream);
+                            } catch (MalformedURLException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        class MyRunnable implements Runnable {
+                            protected Bitmap mPhoto;
+
+                            public MyRunnable(Bitmap photo) {
+                                mPhoto = photo;
+                            }
+
+                            @Override
+                            public void run() {
+                                if (mPhoto != null)
+                                    callback.onPhotoLoaded(mPhoto);
+                                else
+                                    callback.onDataNotAvailable();
+                            }
+                        }
+                        Handler refresh = new Handler(Looper.getMainLooper());
+                        refresh.post(new MyRunnable(photo));
+                    }
+                });
+            }
+        }
+
+
+        /*class GetPhotoTask implements Runnable{
+            LoadPhotoCallback callback;
+            GetPhotoTask(LoadPhotoCallback callback){this.callback = callback;}
+            @Override
+            public void run() {
                 VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_ID,userId,VKApiConst.FIELDS,"photo_id"));
                 request.unregisterObject();
                 request.executeWithListener(new VKRequest.VKRequestListener() {
@@ -154,41 +194,48 @@ public class UsersRemoteDataSource implements UsersDataSource {
                         String str = response.json.toString();
                         try {
                             String photoId = response.json.getJSONArray("response").getJSONObject(0).getString("photo_id");
-//                            JSONArray a = photoId.getJSONArray();
-                            //.getJSONObject(0).getString("photo_id");
-                            Log.d(this.getClass().getName(),photoId);
                             VKRequest request2 = new VKRequest("photos.getById",VKParameters.from(VKApiConst.PHOTOS,photoId,VKApiConst.PHOTO_SIZES,1,VKApiConst.EXTENDED,1));
                             request2.unregisterObject();
-                            request2.executeWithListener(new VKRequest.VKRequestListener() {
+                            request2.executeSyncWithListener(new VKRequest.VKRequestListener() {
                                 @Override
                                 public void onComplete(VKResponse response) {
                                     String str = response.json.toString();
+                                    Bitmap photo = null;
                                     try {
                                         JSONArray jsonArray1 = response.json.
                                                 getJSONArray("response").
                                                 getJSONObject(0).
                                                 getJSONArray("sizes");
-
-                                        //JSONArray jsonArray1 = jsonArray.getJSONObject(0).getJSONArray("sizes");
                                         int arrLength = jsonArray1.length();
                                         JSONObject jsonObject = jsonArray1.getJSONObject(arrLength-1);
-                                        String photo = jsonObject.getString("src");
-                                        Log.d("","");
-                                        //VKApiPhoto photo = new VKApiPhoto(response.json.getJSONArray("response").getJSONArray("sizes").getJSONObject());
-
-                                    } catch (Exception e) {
+                                        String photoUrl = jsonObject.getString("src");
+                                        try {
+                                            InputStream inputStream = new java.net.URL(photoUrl).openStream();
+                                            photo = BitmapFactory.decodeStream(inputStream);
+                                        } catch (MalformedURLException e) {
+                                            e.printStackTrace();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    } catch (JSONException e) {
                                         e.printStackTrace();
                                     }
-                                    Handler refresh = new Handler((Looper.getMainLooper()));
-                                    refresh.post(new Runnable() {
+
+                                    class MyRunnable implements Runnable{
+                                        protected Bitmap mPhoto;
+                                        public MyRunnable(Bitmap photo){
+                                            mPhoto = photo;
+                                        }
                                         @Override
                                         public void run() {
-                                            if(user!=null)
-                                                callback.onUserLoaded(user);
+                                            if(mPhoto!=null)
+                                                callback.onPhotoLoaded(mPhoto);
                                             else
                                                 callback.onDataNotAvailable();
                                         }
-                                    });
+                                    }
+                                    Handler refresh = new Handler(Looper.getMainLooper());
+                                    refresh.post(new MyRunnable(photo));
                                 }
                             });
                         } catch (JSONException e) {
@@ -197,8 +244,8 @@ public class UsersRemoteDataSource implements UsersDataSource {
                     }
                 });
             }
-        }
-        Thread t = new Thread(new GetUserTask(callback));
+        }*/
+        Thread t = new Thread(new GetPhotoTask(callback));
         t.start();
     }
 

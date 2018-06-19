@@ -1,5 +1,7 @@
 package ru.imholynx.profirutestapp.data.source;
 
+import android.graphics.Bitmap;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -12,13 +14,13 @@ public interface UsersDataSource {
         void onDataNotAvailable();
     }
 
-    interface LoadUserCallback{
-        void onUserLoaded(User user);
+    interface LoadPhotoCallback{
+        void onPhotoLoaded(Bitmap photo);
         void onDataNotAvailable();
     }
 
     void getUsers(@NotNull LoadUsersCallback callback);
-    void getUser(@NotNull String userId,@NotNull LoadUserCallback callback);
+    void getPhoto(@NotNull String userId,@NotNull LoadPhotoCallback callback);
     void refreshUsers();
 
 }

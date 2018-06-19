@@ -1,6 +1,8 @@
 package ru.imholynx.profirutestapp.users;
 
+import android.arch.persistence.room.Transaction;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -109,8 +111,8 @@ public class UsersFragment extends Fragment implements UsersContract.View{
 
     UserItemListener mItemListener = new UserItemListener(){
         @Override
-        public void onUserClick(User clickedUser,View view) {
-            mPresenter.openUserDetails(clickedUser,view);
+        public void onUserClick(User clickedUser,View view,Bitmap photo) {
+            mPresenter.openUserDetails(clickedUser,view,photo);
         }
     };
 
@@ -151,8 +153,10 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     }
 
     @Override
-    public void showUserDetailsUi(String userId,View photoView) {
+    public void showUserDetailsUi(String userId,View photoView,Bitmap photo) {
         Intent intent = new Intent(getContext(), UserDetailActivity.class);
+
+        intent.putExtra(UserDetailActivity.EXTRA_PHOTO,photo);
         intent.putExtra(UserDetailActivity.EXTRA_USER_ID, userId);
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
                 Pair.create(photoView.findViewById(R.id.user_photo),"user_photo"));
@@ -226,7 +230,7 @@ public class UsersFragment extends Fragment implements UsersContract.View{
 
                 @Override
                 public void onClick(View view) {
-                    mUserItemListener.onUserClick(user,view);
+                    mUserItemListener.onUserClick(user,view,user.getPhoto());
                 }
             });
 
@@ -238,6 +242,6 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     }
 
     public interface UserItemListener {
-        void onUserClick(User clickedUser, View view);
+        void onUserClick(User clickedUser, View view, Bitmap photo);
     }
 }

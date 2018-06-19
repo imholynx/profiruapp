@@ -1,5 +1,7 @@
 package ru.imholynx.profirutestapp.data.source;
 
+import android.graphics.Bitmap;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -70,7 +72,7 @@ public class UsersRepository implements UsersDataSource {
     }
 
     @Override
-    public void getUser(@NotNull final String userId, @NotNull final LoadUserCallback callback) {
+    public void getPhoto(@NotNull final String userId, @NotNull final LoadPhotoCallback callback) {
         if(userId == null || callback == null)
             throw new NullPointerException();
 
@@ -80,13 +82,13 @@ public class UsersRepository implements UsersDataSource {
             callback.onUserLoaded(cachedUser);
             return;
         }*/
-        mUsersRemoteDataSource.getUser(userId, new LoadUserCallback() {
+        mUsersRemoteDataSource.getPhoto(userId, new LoadPhotoCallback() {
             @Override
-            public void onUserLoaded(User user) {
-                if(mCachedUsers == null)
-                    mCachedUsers = new LinkedHashMap<>();
-                mCachedUsers.put(user.getId(),user);
-                callback.onUserLoaded(user);
+            public void onPhotoLoaded(Bitmap photo) {
+                //if(mCachedUsers == null)
+                //    mCachedUsers = new LinkedHashMap<>();
+                //mCachedUsers.put(user.getId(),user);
+                callback.onPhotoLoaded(photo);
             }
 
             @Override
