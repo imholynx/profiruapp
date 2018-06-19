@@ -16,10 +16,6 @@ public class Photo {
     @NotNull
     private final Bitmap mPhoto;
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
     public Photo(@NotNull String id, @NotNull String photoId, @NotNull String photoUrl, @NotNull Bitmap photo) {
         mId = id;
         mPhotoId = photoId;
