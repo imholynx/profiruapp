@@ -25,16 +25,8 @@ public final class User {
     private final String mSecondName;
 
     @Nullable
-    @ColumnInfo(name = "photo")
-    private final Bitmap mPhoto;
-
-    @Nullable
     @ColumnInfo(name = "photo_link")
     private final String mPhotoLink;
-
-    @Nullable
-    @ColumnInfo(name = "large_photo")
-    private final Bitmap mLargePhoto;
 
     @Nullable
     @ColumnInfo(name = "large_photo_link")
@@ -46,9 +38,7 @@ public final class User {
         this.mId = id;
         this.mFirstName = firstName;
         this.mSecondName = secondName;
-        this.mPhoto = photo;
         this.mPhotoLink = photoLink;
-        this.mLargePhoto = largePhoto;
         this.mLargePhotoLink = largePhotoLink;
     }
 
@@ -65,15 +55,9 @@ public final class User {
         return mSecondName;
     }
     @Nullable
-    public Bitmap getPhoto() {
-        return mPhoto;
-    }
-    @Nullable
     public String getPhotoLink() {
         return mPhotoLink;
     }
-    @Nullable
-    public Bitmap getLargePhoto() { return mLargePhoto; }
     @Nullable
     public String getLargePhotoLink() { return mLargePhotoLink; }
 

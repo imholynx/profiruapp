@@ -81,7 +81,6 @@ public class UsersRemoteDataSource implements UsersDataSource {
             public void run() {
                 final ArrayList<User> users = new ArrayList<>();
                 VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,photo_100", "order", "hints"));
-                //VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_ID, "kubuntu",VKApiConst.FIELDS,"photo"));
                 if (request != null) {
                     request.unregisterObject();
                     request.executeSyncWithListener(new VKRequest.VKRequestListener() {
@@ -94,16 +93,7 @@ public class UsersRemoteDataSource implements UsersDataSource {
                                 final VKApiUser[] vkApiUsers = new VKApiUser[length];
                                 for (int i = 0; i < length; i++) {
                                     VKApiUser user = new VKApiUser(jsonArray.getJSONObject(i));
-                                    Bitmap photo = null;
-                                    try {
-                                        InputStream inputStream = new java.net.URL(user.photo_100).openStream();
-                                        photo = BitmapFactory.decodeStream(inputStream);
-                                    } catch (MalformedURLException e) {
-                                        e.printStackTrace();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                    users.add(new User(String.valueOf(user.id), user.first_name, user.last_name, photo, user.photo_100, null, null));
+                                    users.add(new User(String.valueOf(user.id), user.first_name, user.last_name, null, user.photo_100, null, null));
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();

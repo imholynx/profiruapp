@@ -1,24 +1,20 @@
 package ru.imholynx.profirutestapp.users;
 
-import android.arch.persistence.room.Transaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.media.Image;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.support.v4.app.Fragment;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -33,6 +29,8 @@ import java.util.List;
 import ru.imholynx.profirutestapp.R;
 import ru.imholynx.profirutestapp.data.User;
 import ru.imholynx.profirutestapp.userdetail.UserDetailActivity;
+import ru.imholynx.profirutestapp.util.BitmapLruCache;
+import ru.imholynx.profirutestapp.util.DownloadImageTask;
 
 public class UsersFragment extends Fragment implements UsersContract.View{
 
@@ -42,6 +40,8 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     private ImageView mNoUserIcon;
     private TextView mNoUsersMainView;
     private LinearLayout mUsersView;
+    private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLayoutManager;
 
     public UsersFragment(){
 
@@ -55,6 +55,7 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+
         mListAdapter = new UsersAdapter(new ArrayList<User>(0), mItemListener);
     }
 
@@ -80,10 +81,13 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View root =inflater.inflate(R.layout.users_frag,container,false);
-
-        ListView listView = (ListView) root.findViewById(R.id.users_list);
-        listView.setAdapter(mListAdapter);
+        View root = inflater.inflate(R.layout.users_frag,container,false);
+        mRecyclerView = root.findViewById(R.id.users_list);
+        //ListView listView = (ListView) root.findViewById(R.id.users_list);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mListAdapter);
+        //listView.setAdapter(mListAdapter);
         mUsersView = (LinearLayout) root.findViewById(R.id.usersLL);
 
         mNoUsersView = root.findViewById(R.id.noUsers);
@@ -97,7 +101,8 @@ public class UsersFragment extends Fragment implements UsersContract.View{
                 ContextCompat.getColor(getActivity(), R.color.colorPrimary),
                 ContextCompat.getColor(getActivity(),R.color.colorAccent),
                 ContextCompat.getColor(getActivity(), R.color.colorPrimaryDark));
-        swipeRefreshLayout.setScrollUpChild(listView);
+        swipeRefreshLayout.setScrollUpChild(mRecyclerView);
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -144,6 +149,11 @@ public class UsersFragment extends Fragment implements UsersContract.View{
                 R.mipmap.ic_launcher);
     }
 
+    @Override
+    public void update() {
+        mListAdapter.notifyDataSetChanged();
+    }
+
     private void showNoUsersView(String mainText, int iconRes){
         mUsersView.setVisibility(View.GONE);
         mNoUsersView.setVisibility(View.VISIBLE);
@@ -173,7 +183,80 @@ public class UsersFragment extends Fragment implements UsersContract.View{
         return isAdded();
     }
 
-    private static class UsersAdapter extends BaseAdapter{
+    private static class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHolder>{
+
+        private List<Pair<User,Bitmap>> mUsers;
+        private UserItemListener mUserItemListener;
+
+        public UsersAdapter(List<User> users,UserItemListener itemListener){
+            setList(users);
+            mUserItemListener = itemListener;
+        }
+
+        @Override
+        public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.user_item, parent, false);
+            return new UserViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(UserViewHolder holder, int position) {
+            holder.bind(mUsers.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return mUsers.size();
+        }
+
+        public void replaceData(List<User> users){
+            setList(users);
+            notifyDataSetChanged();
+        }
+
+        public void setList(List<User> users) {
+            if(users == null)
+                throw new NullPointerException();
+            mUsers = users;
+        }
+
+        public class UserViewHolder extends RecyclerView.ViewHolder {
+
+            private TextView firstName;
+            private TextView secondName;
+            private ImageView photo;
+            public UserViewHolder(View itemView) {
+                super(itemView);
+                firstName = (TextView) itemView.findViewById(R.id.user_first_name);
+                secondName = (TextView) itemView.findViewById(R.id.user_second_name);
+                photo = (ImageView) itemView.findViewById(R.id.user_photo);
+            }
+            public void bind(final User user){
+                firstName.setText(user.getFirstName());
+                secondName.setText(user.getSecondName());
+                BitmapLruCache cache = BitmapLruCache.getInstance();
+                final Bitmap bitmap = cache.getImageFromCache(user.getPhotoLink());
+                if(bitmap != null) {
+                    photo.setImageBitmap(bitmap);
+                }
+                else{
+                    photo.setImageBitmap(null);
+                    DownloadImageTask task = new DownloadImageTask(mUsers,getAdapterPosition());
+                    task.execute(user.getPhotoLink());
+                }
+
+                photo.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View view) {
+                        mUserItemListener.onUserClick(user,view,bitmap);
+                    }
+                });
+            }
+        }
+    }
+
+    /*private static class UsersAdapter extends BaseAdapter{
 
         private List<User> mUsers;
         private UserItemListener mUserItemListener;
@@ -216,30 +299,34 @@ public class UsersFragment extends Fragment implements UsersContract.View{
                 LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
                 rowView = inflater.inflate(R.layout.user_item,viewGroup,false);
             }
-            //rowView.getLayoutParams().height = viewGroup.getHeight();
             final User user = getItem(i);
             TextView firstName = (TextView) rowView.findViewById(R.id.user_first_name);
             TextView secondName = (TextView) rowView.findViewById(R.id.user_second_name);
-            final ImageView photo = (ImageView) rowView.findViewById(R.id.user_photo);
+            ImageView photo = (ImageView) rowView.findViewById(R.id.user_photo);
             firstName.setText(user.getFirstName());
             secondName.setText(user.getSecondName());
-            if(user.getPhoto()!=null)
-                photo.setImageBitmap(user.getPhoto());
 
+
+            BitmapLruCache cache = BitmapLruCache.getInstance();
+            final Bitmap bitmap = cache.getImageFromCache(user.getPhotoLink());
+            if(bitmap != null) {
+                photo.setImageBitmap(bitmap);
+            }
+            else{
+                photo.setImageBitmap(null);
+                DownloadImageTask task = new DownloadImageTask(this);
+                task.execute(user.getPhotoLink());
+            }
             rowView.setOnClickListener(new View.OnClickListener(){
 
                 @Override
                 public void onClick(View view) {
-                    mUserItemListener.onUserClick(user,view,user.getPhoto());
+                    mUserItemListener.onUserClick(user,view,bitmap);
                 }
             });
-
             return rowView;
-
         }
-
-
-    }
+    }*/
 
     public interface UserItemListener {
         void onUserClick(User clickedUser, View view, Bitmap photo);

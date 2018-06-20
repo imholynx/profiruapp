@@ -15,10 +15,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-            <ListView
+            <android.support.v7.widget.RecyclerView
                 android:id="@+id/users_list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:scrollingCache="false"
+                android:animationCache="false"/>
         </LinearLayout>
 
         <LinearLayout
@@ -35,7 +37,6 @@
                 android:layout_height="48dp"
                 android:layout_gravity="center"
                 android:src="@android:drawable/star_on"/>
-
             <TextView
                 android:id="@+id/noUserMain"
                 android:layout_width="wrap_content"

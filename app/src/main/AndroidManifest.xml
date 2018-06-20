@@ -13,7 +13,9 @@
         <activity android:name=".users.UsersActivity">
         </activity>
 
-        <activity android:name=".userdetail.UserDetailActivity"/>
+        <activity android:name=".userdetail.UserDetailActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        </activity>
 
 
         <activity android:name="com.vk.sdk.VKServiceActivity" android:label="ServiceActivity" android:theme="@style/VK.Transparent">

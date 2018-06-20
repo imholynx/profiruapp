@@ -18,6 +18,7 @@ public interface UsersContract {
         void showUserDetailsUi(String userId ,android.view.View view,Bitmap photo);
         void showLoadingUsersError();
         void showNoUsers();
+        void update();
         boolean isActive();
     }
 

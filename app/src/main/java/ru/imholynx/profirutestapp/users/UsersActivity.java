@@ -18,6 +18,7 @@ import ru.imholynx.profirutestapp.R;
 import ru.imholynx.profirutestapp.data.source.UsersRepository;
 import ru.imholynx.profirutestapp.data.source.remote.UsersRemoteDataSource;
 import ru.imholynx.profirutestapp.util.ActivityUtils;
+import ru.imholynx.profirutestapp.util.BitmapLruCache;
 
 public class UsersActivity extends AppCompatActivity{
 
@@ -30,35 +31,6 @@ public class UsersActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.users_act);
 
-        //TODO delete
-        VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_50"));
-        if (request != null) {
-            request.unregisterObject();
-            request.executeWithListener(new VKRequest.VKRequestListener() {
-                @Override
-                public void onComplete(VKResponse response) {
-                    String str = response.json.toString();
-                }
-
-                @Override
-                public void onError(VKError error) {
-                    String str = error.toString();
-                }
-
-                @Override
-                public void onProgress(VKRequest.VKProgressType progressType, long bytesLoaded,
-                                       long bytesTotal) {
-                    // you can show progress of the request if you want
-                }
-
-                @Override
-                public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
-
-                }
-            });
-        }
-
-
         UsersFragment usersFragment =
                 (UsersFragment) getSupportFragmentManager().findFragmentById(R.id.contentFrame);
         if(usersFragment == null){
@@ -66,9 +38,9 @@ public class UsersActivity extends AppCompatActivity{
             ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), usersFragment, R.id.contentFrame);
         }
 
-
         mUsersPresenter = new UsersPresenter(UsersRepository.getInstance(UsersRemoteDataSource.getInstance()), usersFragment);
-
+        BitmapLruCache cache = BitmapLruCache.getInstance();
+        cache.initializeCache();
 
     }
 }
