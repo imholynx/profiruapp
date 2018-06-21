@@ -12,11 +12,9 @@ import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
-import com.vk.sdk.util.VKUtil;
 
 import ru.imholynx.profirutestapp.R;
 import ru.imholynx.profirutestapp.users.UsersActivity;
-import ru.imholynx.profirutestapp.users.UsersFragment;
 
 
 /**
@@ -34,11 +32,11 @@ public class LoginActivity extends FragmentActivity {
      */
     private static final String[] sMyScope = new String[]{
             VKScope.FRIENDS,
-            VKScope.WALL,
+            //VKScope.WALL,
             VKScope.PHOTOS,
-            VKScope.NOHTTPS,
-            VKScope.MESSAGES,
-            VKScope.DOCS
+            VKScope.NOHTTPS
+            //VKScope.MESSAGES,
+            //VKScope.DOCS
     };
 
     @Override
@@ -69,9 +67,6 @@ public class LoginActivity extends FragmentActivity {
 
             }
         });
-
-//        String[] fingerprint = VKUtil.getCertificateFingerprint(this, this.getPackageName());
-//        Log.d("Fingerprint", fingerprint[0]);
     }
 
     private void showLogout() {

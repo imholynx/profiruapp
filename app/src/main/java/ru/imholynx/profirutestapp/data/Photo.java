@@ -1,41 +1,45 @@
 package ru.imholynx.profirutestapp.data;
 
-import android.graphics.Bitmap;
-
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class Photo {
 
     @NotNull
-    private final String mId;
+    private final String id;
     @NotNull
-    private final String mPhotoId;
+    private final String photoId;
     @NotNull
-    private final String mPhotoUrl;
+    private final String photoUrl;
     @NotNull
-    private final Bitmap mPhoto;
+    private final int likes;
+    @NotNull
+    private final int comments;
 
-    public Photo(@NotNull String id, @NotNull String photoId, @NotNull String photoUrl, @NotNull Bitmap photo) {
-        mId = id;
-        mPhotoId = photoId;
-        mPhotoUrl = photoUrl;
-        mPhoto = photo;
+    public Photo(@NotNull String id, @NotNull String photoId, @NotNull String photoUrl, @NotNull int likes, @NotNull int comments) {
+        this.id = id;
+        this.photoId = photoId;
+        this.photoUrl = photoUrl;
+        this.likes = likes;
+        this.comments = comments;
     }
 
     @NotNull
     public String getPhotoId() {
-        return mPhotoId;
+        return photoId;
     }
 
     @NotNull
     public String getPhotoUrl() {
-        return mPhotoUrl;
+        return photoUrl;
     }
 
     @NotNull
-    public Bitmap getPhoto() {
-        return mPhoto;
+    public int getLikes() {
+        return likes;
     }
 
+    @NotNull
+    public int getComments() {
+        return comments;
+    }
 }

@@ -1,7 +1,5 @@
 package ru.imholynx.profirutestapp.data.source;
 
-import android.graphics.Bitmap;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -9,33 +7,28 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.imholynx.profirutestapp.data.Photo;
 import ru.imholynx.profirutestapp.data.User;
-
 
 
 public class UsersRepository implements UsersDataSource {
 
     private static UsersRepository INSTANCE = null;
-    private final UsersDataSource mUsersRemoteDataSource;
-    //private final UsersDataSource mUsersLocalDataSource;
+    private final UsersDataSource usersRemoteDataSource;
 
     Map<String, User> mCachedUsers;
 
     boolean mCacheIsDirty = false;
 
     private UsersRepository(@NotNull UsersDataSource usersRemoteDataSource){
-                            //@NotNull UsersDataSource usersLocaleDataSource){
-        if(usersRemoteDataSource == null)//|| usersLocaleDataSource == null)
+        if(usersRemoteDataSource == null)
             throw new NullPointerException();
-        mUsersRemoteDataSource = usersRemoteDataSource;
-        //mUsersLocalDataSource = usersLocaleDataSource;
+        this.usersRemoteDataSource = usersRemoteDataSource;
     }
 
-    public static UsersRepository getInstance(UsersDataSource usersRemoteDataSource
-                                              //,UsersDataSource usersLocaleDataSource
-                                              ){
+    public static UsersRepository getInstance(UsersDataSource usersRemoteDataSource){
         if(INSTANCE == null)
-            INSTANCE = new UsersRepository(usersRemoteDataSource);//,usersLocaleDataSource);
+            INSTANCE = new UsersRepository(usersRemoteDataSource);
         return INSTANCE;
     }
 
@@ -53,21 +46,8 @@ public class UsersRepository implements UsersDataSource {
             return;
         }
 
-        if(mCacheIsDirty)
+        if(mCacheIsDirty){
             getUsersFromRemoteDataSource(callback);
-        else{
-            /*mUsersLocalDataSource.getUsers(new LoadUsersCallback() {
-                @Override
-                public void onUsersLoaded(List<User> users) {
-                    refreshCache(users);
-                    callback.onUsersLoaded(new ArrayList<User>(mCachedUsers.values()));
-                }
-
-                @Override
-                public void onDataNotAvailable() {
-                    getUsersFromRemoteDataSource(callback);
-                }
-            });*/
         }
     }
 
@@ -75,22 +55,11 @@ public class UsersRepository implements UsersDataSource {
     public void getPhoto(@NotNull final String userId, @NotNull final LoadPhotoCallback callback) {
         if(userId == null || callback == null)
             throw new NullPointerException();
-
-        /*User cachedUser = getUserWithId(userId);
-
-        if (cachedUser != null || cachedUser.getLargePhoto() != null){
-            callback.onUserLoaded(cachedUser);
-            return;
-        }*/
-        mUsersRemoteDataSource.getPhoto(userId, new LoadPhotoCallback() {
+        usersRemoteDataSource.getPhoto(userId, new LoadPhotoCallback() {
             @Override
-            public void onPhotoLoaded(Bitmap photo) {
-                //if(mCachedUsers == null)
-                //    mCachedUsers = new LinkedHashMap<>();
-                //mCachedUsers.put(user.getId(),user);
+            public void onPhotoLoaded(Photo photo) {
                 callback.onPhotoLoaded(photo);
             }
-
             @Override
             public void onDataNotAvailable() {
                 callback.onDataNotAvailable();
@@ -104,16 +73,16 @@ public class UsersRepository implements UsersDataSource {
     }
 
     private void getUsersFromRemoteDataSource(@NotNull final LoadUsersCallback callback) {
-        mUsersRemoteDataSource.getUsers(new LoadUsersCallback() {
+        usersRemoteDataSource.getUsers(new LoadUsersCallback() {
             @Override
             public void onUsersLoaded(List<User> users) {
                 refreshCache(users);
-                refreshLocalDataSource(users);
                 callback.onUsersLoaded(new ArrayList<User>(mCachedUsers.values()));
             }
 
             @Override
             public void onDataNotAvailable() {
+
                 callback.onDataNotAvailable();
             }
         });
@@ -127,21 +96,4 @@ public class UsersRepository implements UsersDataSource {
             mCachedUsers.put(user.getId(),user);
         mCacheIsDirty = false;
     }
-    //TODO
-    private void refreshLocalDataSource(List<User> users)
-    {
-    }
-
-    @NotNull
-    private User getUserWithId(@NotNull String id)
-    {
-        if(id == null)
-            throw new NullPointerException();
-        if(mCachedUsers == null || mCachedUsers.isEmpty()){
-            return null;
-        } else {
-            return mCachedUsers.get(id);
-        }
-    }
-
 }

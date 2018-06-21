@@ -10,7 +10,7 @@ import android.view.View;
 
 public class ScrollChildSwipeRefreshLayout extends SwipeRefreshLayout{
 
-    private View mScrollUpChild;
+    private View scrollUpChild;
 
     public ScrollChildSwipeRefreshLayout(@NonNull Context context) {
         super(context);
@@ -22,12 +22,12 @@ public class ScrollChildSwipeRefreshLayout extends SwipeRefreshLayout{
 
     @Override
     public boolean canChildScrollUp() {
-        if(mScrollUpChild != null)
-            return ViewCompat.canScrollVertically(mScrollUpChild, -1);
+        if(scrollUpChild != null)
+            return ViewCompat.canScrollVertically(scrollUpChild, -1);
         return super.canChildScrollUp();
     }
 
     public void setScrollUpChild(View scrollUpChild) {
-        mScrollUpChild = scrollUpChild;
+        this.scrollUpChild = scrollUpChild;
     }
 }

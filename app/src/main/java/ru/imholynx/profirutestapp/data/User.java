@@ -1,72 +1,61 @@
 package ru.imholynx.profirutestapp.data;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
-import android.graphics.Bitmap;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Entity(tableName = "tasks")
 public final class User {
 
-    @PrimaryKey
     @NotNull
-    @ColumnInfo(name = "id")
-    private final String mId;
+    private final String id;
 
     @NotNull
-    @ColumnInfo(name = "first_name")
-    private final String mFirstName;
+    private final String firstName;
 
     @NotNull
-    @ColumnInfo(name = "second_name")
-    private final String mSecondName;
+    private final String secondName;
 
     @Nullable
-    @ColumnInfo(name = "photo_link")
-    private final String mPhotoLink;
+    private final String photoLink;
 
     @Nullable
-    @ColumnInfo(name = "large_photo_link")
-    private final String mLargePhotoLink;
+    private final String largePhotoLink;
 
-
-
-    public User(@NotNull String id, @NotNull String firstName, @NotNull String secondName, @Nullable Bitmap photo, @Nullable String photoLink, @Nullable Bitmap largePhoto, @Nullable String largePhotoLink) {
-        this.mId = id;
-        this.mFirstName = firstName;
-        this.mSecondName = secondName;
-        this.mPhotoLink = photoLink;
-        this.mLargePhotoLink = largePhotoLink;
+    public User(@NotNull String id, @NotNull String firstName, @NotNull String secondName,  @Nullable String photoLink, @Nullable String largePhotoLink) {
+        this.id = id;
+        this.firstName = firstName;
+        this.secondName = secondName;
+        this.photoLink = photoLink;
+        this.largePhotoLink = largePhotoLink;
     }
 
     @NotNull
     public String getId() {
-        return mId;
+        return id;
     }
+
     @NotNull
     public String getFirstName() {
-        return mFirstName;
+        return firstName;
     }
+
     @NotNull
     public String getSecondName() {
-        return mSecondName;
+        return secondName;
     }
+
     @Nullable
-    public String getPhotoLink() {
-        return mPhotoLink;
+    public String getPhotoLink() { return photoLink; }
+
+    @Nullable
+    public String getLargePhotoLink() { return largePhotoLink;
     }
-    @Nullable
-    public String getLargePhotoLink() { return mLargePhotoLink; }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         User user = (User) obj;
-        return getId() == user.getId();
+        return getId().equals(user.getId());
     }
 
     @Override
@@ -76,9 +65,8 @@ public final class User {
 
     @Override
     public String toString() {
-        return mFirstName + " " + mSecondName;
+        return firstName + " " + secondName;
     }
-
 
 
 }

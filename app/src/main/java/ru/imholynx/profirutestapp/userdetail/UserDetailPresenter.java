@@ -1,44 +1,34 @@
 package ru.imholynx.profirutestapp.userdetail;
 
-import android.graphics.Bitmap;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ru.imholynx.profirutestapp.data.Photo;
-import ru.imholynx.profirutestapp.data.User;
 import ru.imholynx.profirutestapp.data.source.UsersDataSource;
 import ru.imholynx.profirutestapp.data.source.UsersRepository;
 
 public class UserDetailPresenter implements UserDetailContract.Presenter {
 
-    private final UsersRepository mUsersRepository;
-    private final UserDetailContract.View mUserDetailView;
+    private final UsersRepository usersRepository;
+    private final UserDetailContract.View userDetailView;
 
     @Nullable
-    private String mUserId;
-   // @NotNull
-    //private Bitmap mStartPhoto;
+    private String userId;
 
     public UserDetailPresenter(@NotNull String userId,
-                               //@NotNull Bitmap startPhoto,
                                @NotNull UsersRepository usersRepository,
                                @NotNull UserDetailContract.View userDetailView) {
         if (userId == null)
             throw new NullPointerException("userId cannot be null");
-       // if (startPhoto == null)
-        //    throw new NullPointerException("startPhoto cannot be null");
         if (usersRepository == null)
             throw new NullPointerException("usersRepository cannot be null");
         if (userDetailView == null)
             throw new NullPointerException("userDetailView cannot be null");
 
-        mUserId = userId;
-       // mStartPhoto = startPhoto;
-        mUsersRepository = usersRepository;
-        mUserDetailView = userDetailView;
-
-        mUserDetailView.setPresenter(this);
+        this.userId = userId;
+        this.usersRepository = usersRepository;
+        this.userDetailView = userDetailView;
+        this.userDetailView.setPresenter(this);
     }
 
     @Override
@@ -47,53 +37,45 @@ public class UserDetailPresenter implements UserDetailContract.Presenter {
     }
 
     private void openUser() {
-        //mUserDetailView.setLoadingIndicator(true);
-        //mUserDetailView.showPhoto(mStartPhoto);
-        mUsersRepository.getPhoto(mUserId, new UsersDataSource.LoadPhotoCallback() {
+        usersRepository.getPhoto(userId, new UsersDataSource.LoadPhotoCallback() {
             @Override
-            public void onPhotoLoaded(Bitmap photo) {
-                if(!mUserDetailView.isActive())
+            public void onPhotoLoaded(Photo photo) {
+                if (!userDetailView.isActive())
                     return;
-                mUserDetailView.setLoadingIndicator(false);
+                userDetailView.setLoadingIndicator(false);
                 showPhoto(photo);
             }
 
             @Override
             public void onDataNotAvailable() {
-                if(!mUserDetailView.isActive())
+                if (!userDetailView.isActive())
                     return;
-                mUserDetailView.showMissingUser();
+                userDetailView.showMissingUser();
             }
         });
     }
 
-    private void showPhoto(@NotNull Bitmap photo) {
-        //String firstName = user.getFirstName();
-        //String secondName = user.getSecondName();
-        //Bitmap photo = user.getPhoto();
-        /*if(firstName.isEmpty() && secondName.isEmpty())
-            mUserDetailView.hideDescription();
+    private void showPhoto(@NotNull Photo photo) {
+        if (photo == null  || photo.getPhotoUrl().isEmpty())
+            userDetailView.hidePhoto();
         else
-            mUserDetailView.showDescription(firstName + " " + secondName);*/
-        if(photo == null)
-            mUserDetailView.hidePhoto();
-        else
-            mUserDetailView.showPhoto(photo);
+            userDetailView.showPhoto(photo);
     }
 
     @Override
     public void loadPhoto(String userId) {
-        mUsersRepository.getPhoto(userId, new UsersDataSource.LoadPhotoCallback() {
-            @Override
-            public void onPhotoLoaded(Bitmap photo) {
-                if (!mUserDetailView.isActive())
-                    return;
-                if(photo==null)
-                    return;
-                mUserDetailView.showPhoto(photo);
-            }
-            @Override
-            public void onDataNotAvailable() {
+        usersRepository.getPhoto(userId, new UsersDataSource.LoadPhotoCallback() {
+                    @Override
+                    public void onPhotoLoaded(Photo photo) {
+                        if (!userDetailView.isActive())
+                            return;
+                        if (photo == null)
+                            return;
+                        userDetailView.showPhoto(photo);
+                    }
+
+                    @Override
+                    public void onDataNotAvailable() {
 
             }
         });

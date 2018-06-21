@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <ImageView
@@ -11,14 +10,16 @@
         android:transitionName="user_photo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/user_detail_description"/>
+        app:layout_constraintBottom_toTopOf="@id/user_detail_description"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/user_detail_description"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="Medium Text"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        app:layout_constraintTop_toBottomOf="@id/user_photo"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:textColor="@color/colorWhite"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/user_photo" />
 </android.support.constraint.ConstraintLayout>

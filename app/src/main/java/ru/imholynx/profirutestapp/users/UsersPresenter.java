@@ -1,63 +1,57 @@
 package ru.imholynx.profirutestapp.users;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.view.View;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ru.imholynx.profirutestapp.data.User;
 import ru.imholynx.profirutestapp.data.source.UsersDataSource;
 import ru.imholynx.profirutestapp.data.source.UsersRepository;
 
-class UsersPresenter  implements UsersContract.Presenter{
+class UsersPresenter implements UsersContract.Presenter {
 
-    private final UsersRepository mUsersRepository;
-    private final UsersContract.View mUsersView;
-    private boolean mFirstLoad = true;
+    private final UsersRepository usersRepository;
+    private final UsersContract.View usersView;
+    private boolean firstLoad = true;
 
-    public UsersPresenter(@NotNull UsersRepository usersRepository,@NotNull UsersContract.View usersView) {
-        if(usersRepository == null)
+    public UsersPresenter(@NotNull UsersRepository usersRepository, @NotNull UsersContract.View usersView) {
+        if (usersRepository == null)
             throw new NullPointerException("usersRepository cannot be null");
-        if(usersView == null)
+        if (usersView == null)
             throw new NullPointerException("usersView cannot be null");
-        this.mUsersRepository = usersRepository;
-        this.mUsersView = usersView;
-        mUsersView.setPresenter(this);
+        this.usersRepository = usersRepository;
+        this.usersView = usersView;
+        this.usersView.setPresenter(this);
     }
 
     @Override
     public void start() {
         loadUsers(false);
     }
-    //TODO
-    @Override
-    public void result(int requestCode, int resultCode) {
-    }
 
     @Override
     public void loadUsers(boolean forcedUpdate) {
-        loadUsers(forcedUpdate || mFirstLoad, true);
-        mFirstLoad = false;
+        loadUsers(forcedUpdate || firstLoad, true);
+        firstLoad = false;
     }
 
     public void loadUsers(boolean forcedUpdate, final boolean showLoadingUi) {
         if (showLoadingUi)
-            mUsersView.setLoadingIndication(true);
+            usersView.setLoadingIndication(true);
         if (forcedUpdate)
-            mUsersRepository.refreshUsers();
+            usersRepository.refreshUsers();
 
-        mUsersRepository.getUsers(new UsersDataSource.LoadUsersCallback() {
+        usersRepository.getUsers(new UsersDataSource.LoadUsersCallback() {
             @Override
             public void onUsersLoaded(List<User> users) {
-                if(!mUsersView.isActive()){
+                if (!usersView.isActive()) {
                     return;
                 }
-                if(showLoadingUi){
-                    mUsersView.setLoadingIndication(false);
+                if (showLoadingUi) {
+                    usersView.setLoadingIndication(false);
                 }
                 processUsers(users);
 
@@ -65,25 +59,26 @@ class UsersPresenter  implements UsersContract.Presenter{
 
             @Override
             public void onDataNotAvailable() {
-                if(!mUsersView.isActive()){
+                if (!usersView.isActive())  {
                     return;
                 }
-                mUsersView.showLoadingUsersError();
+                usersView.showLoadingUsersError();
             }
         });
     }
 
-    private void processUsers(List<User> users){
-        if(users.isEmpty())
-            mUsersView.showNoUsers();
-        else
-            mUsersView.showUsers(users);
+    private void processUsers(List<User> users) {
+        if (users.isEmpty()) {
+            usersView.showNoUsers();
+        } else {
+            usersView.showUsers(users);
+        }
     }
 
     @Override
-    public void openUserDetails(@NotNull User requestedUser, View view,Bitmap photo) {
-        if(requestedUser == null)
+    public void openUserDetails(@NotNull User requestedUser, View view, Bitmap photo) {
+        if (requestedUser == null)
             throw new NullPointerException("requestedUser cannot be null");
-        mUsersView.showUserDetailsUi(requestedUser.getId(),view, photo);
+        usersView.showUserDetailsUi(requestedUser.getId(), view, photo);
     }
 }

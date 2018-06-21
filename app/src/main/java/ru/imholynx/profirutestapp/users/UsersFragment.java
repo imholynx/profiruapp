@@ -16,10 +16,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,14 +34,12 @@ import ru.imholynx.profirutestapp.util.DownloadImageTask;
 
 public class UsersFragment extends Fragment implements UsersContract.View{
 
-    private UsersContract.Presenter mPresenter;
-    private UsersAdapter mListAdapter;
-    private View mNoUsersView;
-    private ImageView mNoUserIcon;
-    private TextView mNoUsersMainView;
-    private LinearLayout mUsersView;
-    private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLayoutManager;
+    private UsersContract.Presenter presenter;
+    private UsersAdapter listAdapter;
+    private View noUsersView;
+    private ImageView noUserIcon;
+    private TextView noUsersMainView;
+    private LinearLayout usersView;
 
     public UsersFragment(){
 
@@ -58,22 +54,22 @@ public class UsersFragment extends Fragment implements UsersContract.View{
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        mListAdapter = new UsersAdapter(new ArrayList<User>(0), mItemListener);
+        listAdapter = new UsersAdapter(new ArrayList<User>(0), userClickListener);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mPresenter.start();
+        presenter.start();
     }
 
     @Override
     public void setPresenter(@NotNull UsersContract.Presenter presenter) {
         if(presenter == null)
             throw new NullPointerException();
-        mPresenter = presenter;
+        this.presenter = presenter;
     }
-    //TODO
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -84,18 +80,16 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.users_frag,container,false);
-        mRecyclerView = root.findViewById(R.id.users_list);
-        //ListView listView = (ListView) root.findViewById(R.id.users_list);
-        mLayoutManager = new LinearLayoutManager(getActivity());
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(mListAdapter);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(),DividerItemDecoration.HORIZONTAL));
-        //listView.setAdapter(mListAdapter);
-        mUsersView = (LinearLayout) root.findViewById(R.id.usersLL);
+        RecyclerView recyclerView = root.findViewById(R.id.users_list);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(listAdapter);
+        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(),DividerItemDecoration.HORIZONTAL));
+        usersView = (LinearLayout) root.findViewById(R.id.usersLL);
 
-        mNoUsersView = root.findViewById(R.id.noUsers);
-        mNoUserIcon = (ImageView) root.findViewById(R.id.noUserIcon);
-        mNoUsersMainView = root.findViewById(R.id.noUserMain);
+        noUsersView = root.findViewById(R.id.noUsers);
+        noUserIcon = (ImageView) root.findViewById(R.id.noUserIcon);
+        noUsersMainView = root.findViewById(R.id.noUserMain);
 
 
         final ScrollChildSwipeRefreshLayout swipeRefreshLayout =
@@ -104,12 +98,12 @@ public class UsersFragment extends Fragment implements UsersContract.View{
                 ContextCompat.getColor(getActivity(), R.color.colorPrimary),
                 ContextCompat.getColor(getActivity(),R.color.colorAccent),
                 ContextCompat.getColor(getActivity(), R.color.colorPrimaryDark));
-        swipeRefreshLayout.setScrollUpChild(mRecyclerView);
+        swipeRefreshLayout.setScrollUpChild(recyclerView);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mPresenter.loadUsers(false);
+                presenter.loadUsers(false);
             }
         });
 
@@ -117,10 +111,10 @@ public class UsersFragment extends Fragment implements UsersContract.View{
         return root;
     }
 
-    UserItemListener mItemListener = new UserItemListener(){
+    UserItemListener userClickListener = new UserItemListener(){
         @Override
         public void onUserClick(User clickedUser,View view,Bitmap photo) {
-            mPresenter.openUserDetails(clickedUser,view,photo);
+            presenter.openUserDetails(clickedUser,view,photo);
         }
     };
 
@@ -128,21 +122,20 @@ public class UsersFragment extends Fragment implements UsersContract.View{
     public void setLoadingIndication(final boolean active) {
         if(getView() == null)
             return;
-        final SwipeRefreshLayout srl = (SwipeRefreshLayout) getView().findViewById(R.id.refresh_layout);
-
-        srl.post(new Runnable() {
+        final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.refresh_layout);
+        swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-                srl.setRefreshing(active);
+                swipeRefreshLayout.setRefreshing(active);
             }
         });
     }
 
     @Override
     public void showUsers(List<User> users) {
-        mListAdapter.replaceData(users);
-        mUsersView.setVisibility(View.VISIBLE);
-        mNoUsersView.setVisibility(View.GONE);
+        listAdapter.replaceData(users);
+        usersView.setVisibility(View.VISIBLE);
+        noUsersView.setVisibility(View.GONE);
     }
 
     @Override
@@ -152,33 +145,26 @@ public class UsersFragment extends Fragment implements UsersContract.View{
                 R.mipmap.ic_launcher);
     }
 
-    @Override
-    public void update() {
-        mListAdapter.notifyDataSetChanged();
-    }
-
     private void showNoUsersView(String mainText, int iconRes){
-        mUsersView.setVisibility(View.GONE);
-        mNoUsersView.setVisibility(View.VISIBLE);
+        usersView.setVisibility(View.GONE);
+        noUsersView.setVisibility(View.VISIBLE);
 
-        mNoUsersMainView.setText(mainText);
-        mNoUserIcon.setImageDrawable(getResources().getDrawable(iconRes));
+        noUsersMainView.setText(mainText);
+        noUserIcon.setImageDrawable(getResources().getDrawable(iconRes));
     }
 
     @Override
     public void showUserDetailsUi(String userId,View photoView,Bitmap photo) {
         Intent intent = new Intent(getContext(), UserDetailActivity.class);
-
-        intent.putExtra(UserDetailActivity.EXTRA_PHOTO,photo);
         intent.putExtra(UserDetailActivity.EXTRA_USER_ID, userId);
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
                 Pair.create(photoView.findViewById(R.id.user_photo),"user_photo"));
-        startActivity(intent,options.toBundle());
+        startActivity(intent, options.toBundle());
     }
 
     @Override
     public void showLoadingUsersError() {
-        Toast.makeText(getContext(),R.string.loading_users_error,Toast.LENGTH_LONG);
+        Toast.makeText(getContext(),R.string.loading_users_error,Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -191,20 +177,21 @@ public class UsersFragment extends Fragment implements UsersContract.View{
         private List<User> mUsers;
         private UserItemListener mUserItemListener;
 
-        public UsersAdapter(List<User> users,UserItemListener itemListener){
+        UsersAdapter(List<User> users, UserItemListener itemListener){
             setList(users);
             mUserItemListener = itemListener;
         }
 
+        @NonNull
         @Override
-        public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.user_item, parent, false);
             return new UserViewHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(UserViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
             holder.bind(mUsers.get(position));
         }
 
@@ -231,13 +218,11 @@ public class UsersFragment extends Fragment implements UsersContract.View{
 
         public class UserViewHolder extends RecyclerView.ViewHolder {
 
-            private View root;
             private TextView firstName;
             private TextView secondName;
             private ImageView photo;
             public UserViewHolder(View itemView) {
                 super(itemView);
-                root = itemView;
                 firstName = (TextView) itemView.findViewById(R.id.user_first_name);
                 secondName = (TextView) itemView.findViewById(R.id.user_second_name);
                 photo = (ImageView) itemView.findViewById(R.id.user_photo);
@@ -265,6 +250,7 @@ public class UsersFragment extends Fragment implements UsersContract.View{
             }
         }
     }
+
     public interface UserItemListener {
         void onUserClick(User clickedUser, View view, Bitmap photo);
     }

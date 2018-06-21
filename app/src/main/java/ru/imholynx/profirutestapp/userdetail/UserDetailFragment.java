@@ -2,9 +2,7 @@ package ru.imholynx.profirutestapp.userdetail;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,19 +14,20 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ru.imholynx.profirutestapp.R;
-import ru.imholynx.profirutestapp.data.User;
+import ru.imholynx.profirutestapp.data.Photo;
+import ru.imholynx.profirutestapp.util.DownloadImageTask;
 
-public class UserDetailFragment extends Fragment implements UserDetailContract.View{
+public class UserDetailFragment extends Fragment implements UserDetailContract.View {
 
     @NotNull
     private static final String ARGUMENT_USER_ID = "USER_ID";
 
-    private UserDetailContract.Presenter mPresenter;
+    private UserDetailContract.Presenter presenter;
 
-    private TextView mDetailDescription;
-    private ImageView mDetailPhoto;
+    private TextView detailDescription;
+    private ImageView detailPhoto;
 
-    public static UserDetailFragment newInstance(@NotNull String userId){
+    public static UserDetailFragment newInstance(@NotNull String userId) {
         Bundle arguments = new Bundle();
         arguments.putString(ARGUMENT_USER_ID, userId);
         UserDetailFragment fragment = new UserDetailFragment();
@@ -39,72 +38,71 @@ public class UserDetailFragment extends Fragment implements UserDetailContract.V
     @Override
     public void onResume() {
         super.onResume();
-        mPresenter.start();
+        presenter.start();
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View root = inflater.inflate(R.layout.userdetail_frag, container,false);
-        mDetailDescription = (TextView) root.findViewById(R.id.user_detail_description);
-        mDetailPhoto = (ImageView) root.findViewById(R.id.user_photo);
-
+        View root = inflater.inflate(R.layout.userdetail_frag, container, false);
+        detailDescription = (TextView) root.findViewById(R.id.user_detail_description);
+        detailPhoto = (ImageView) root.findViewById(R.id.user_photo);
         return root;
     }
 
     @Override
     public void setPresenter(UserDetailContract.Presenter presenter) {
-        if(presenter == null)
+        if (presenter == null)
             throw new NullPointerException();
-        mPresenter = presenter;
+        this.presenter = presenter;
     }
 
     @Override
     public void setLoadingIndicator(boolean active) {
-        if(active){
-            mDetailDescription.setText(getString(R.string.loading));
+        if (active) {
+            detailDescription.setText(getString(R.string.loading));
         }
     }
 
     @Override
     public void hideDescription() {
-        mDetailDescription.setVisibility(View.GONE);
+        detailDescription.setVisibility(View.GONE);
     }
 
     @Override
     public void showDescription(String description) {
-        mDetailDescription.setVisibility(View.VISIBLE);
-        mDetailDescription.setText(description);
+        detailDescription.setVisibility(View.VISIBLE);
+        detailDescription.setText(description);
     }
 
     @Override
     public void hidePhoto() {
-        mDetailPhoto.setVisibility(View.GONE);
+        detailPhoto.setVisibility(View.GONE);
     }
 
     @Override
-    public void showPhoto(Bitmap photo) {
-        mDetailPhoto.setImageBitmap(photo);
+    public void showPhoto(Photo photo) {
+        showDescription("Лайков: "+photo.getLikes()+" Комментариев: "+photo.getComments());
+        DownloadImageTask task = new DownloadImageTask(detailPhoto);
+        task.execute(photo.getPhotoUrl());
     }
 
-    //TODO
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK){
+        if (resultCode == Activity.RESULT_OK) {
             getActivity().finish();
         }
     }
 
     @Override
     public void showMissingUser() {
-        mDetailDescription.setText(getString(R.string.no_data));
+        detailDescription.setText(getString(R.string.no_data));
     }
 
-     @Override
+    @Override
     public boolean isActive() {
         return isAdded();
     }
-
 
 }

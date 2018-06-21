@@ -1,13 +1,14 @@
 package ru.imholynx.profirutestapp;
 
-        import android.content.Intent;
-        import android.widget.Toast;
+import android.content.Intent;
+import android.widget.Toast;
 
-        import com.vk.sdk.VKAccessToken;
-        import com.vk.sdk.VKAccessTokenTracker;
-        import com.vk.sdk.VKSdk;
+import com.vk.sdk.VKAccessToken;
+import com.vk.sdk.VKAccessTokenTracker;
+import com.vk.sdk.VKSdk;
 
-        import ru.imholynx.profirutestapp.vk.LoginActivity;
+import ru.imholynx.profirutestapp.util.BitmapLruCache;
+import ru.imholynx.profirutestapp.vk.LoginActivity;
 
 public class Application extends android.app.Application {
 
@@ -28,5 +29,7 @@ public class Application extends android.app.Application {
         super.onCreate();
         vkAccessTokenTracker.startTracking();
         VKSdk.initialize(this);
+        BitmapLruCache cache = BitmapLruCache.getInstance();
+        cache.initializeCache();
     }
 }
