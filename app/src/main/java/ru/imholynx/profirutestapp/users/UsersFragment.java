@@ -10,11 +10,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -87,6 +89,7 @@ public class UsersFragment extends Fragment implements UsersContract.View{
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mListAdapter);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(),DividerItemDecoration.HORIZONTAL));
         //listView.setAdapter(mListAdapter);
         mUsersView = (LinearLayout) root.findViewById(R.id.usersLL);
 
@@ -185,7 +188,7 @@ public class UsersFragment extends Fragment implements UsersContract.View{
 
     private static class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHolder>{
 
-        private List<Pair<User,Bitmap>> mUsers;
+        private List<User> mUsers;
         private UserItemListener mUserItemListener;
 
         public UsersAdapter(List<User> users,UserItemListener itemListener){
@@ -221,13 +224,20 @@ public class UsersFragment extends Fragment implements UsersContract.View{
             mUsers = users;
         }
 
+        @Override
+        public int getItemViewType(int position) {
+            return position;
+        }
+
         public class UserViewHolder extends RecyclerView.ViewHolder {
 
+            private View root;
             private TextView firstName;
             private TextView secondName;
             private ImageView photo;
             public UserViewHolder(View itemView) {
                 super(itemView);
+                root = itemView;
                 firstName = (TextView) itemView.findViewById(R.id.user_first_name);
                 secondName = (TextView) itemView.findViewById(R.id.user_second_name);
                 photo = (ImageView) itemView.findViewById(R.id.user_photo);
@@ -242,11 +252,11 @@ public class UsersFragment extends Fragment implements UsersContract.View{
                 }
                 else{
                     photo.setImageBitmap(null);
-                    DownloadImageTask task = new DownloadImageTask(mUsers,getAdapterPosition());
+                    DownloadImageTask task = new DownloadImageTask(photo);
                     task.execute(user.getPhotoLink());
                 }
 
-                photo.setOnClickListener(new View.OnClickListener(){
+                itemView.setOnClickListener(new View.OnClickListener(){
                     @Override
                     public void onClick(View view) {
                         mUserItemListener.onUserClick(user,view,bitmap);
