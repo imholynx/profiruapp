@@ -64,7 +64,7 @@ public class UsersRemoteDataSource implements UsersDataSource {
                     request.executeSyncWithListener(new VKRequest.VKRequestListener() {
                         @Override
                         public void onComplete(VKResponse response) {
-                            users.addAll(parseUsersFromJson(response));
+                            users.addAll(parseUsersFromJson(response.json));
                             Handler refresh = new Handler(Looper.getMainLooper());
                             refresh.post(new Runnable() {
                                 @Override
@@ -76,6 +76,22 @@ public class UsersRemoteDataSource implements UsersDataSource {
                     });
                 }
             }
+
+            private List<User> parseUsersFromJson(JSONObject jsonObject) {
+                List<User> users= new ArrayList<>();
+                try {
+                    JSONArray jsonArray = jsonObject.getJSONObject("response").getJSONArray("items");
+                    int length = jsonArray.length();
+                    final VKApiUser[] vkApiUsers = new VKApiUser[length];
+                    for (int i = 0; i < length; i++) {
+                        VKApiUser user = new VKApiUser(jsonArray.getJSONObject(i));
+                        users.add(new User(String.valueOf(user.id), user.first_name, user.last_name, user.photo_100,null));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return users;
+            }
         }
         Thread t = new Thread(new GetUsersTask(callback));
         t.start();
@@ -83,22 +99,7 @@ public class UsersRemoteDataSource implements UsersDataSource {
 
 
 
-    private List<User> parseUsersFromJson(VKResponse response) {
-        List<User> users= new ArrayList<>();
-        String str = response.json.toString();
-        try {
-            JSONArray jsonArray = response.json.getJSONObject("response").getJSONArray("items");
-            int length = jsonArray.length();
-            final VKApiUser[] vkApiUsers = new VKApiUser[length];
-            for (int i = 0; i < length; i++) {
-                VKApiUser user = new VKApiUser(jsonArray.getJSONObject(i));
-                users.add(new User(String.valueOf(user.id), user.first_name, user.last_name, user.photo_100,null));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return users;
-    }
+
 
     @Override
     public void getPhoto(@NotNull final String userId, final @NotNull LoadPhotoCallback callback) {
