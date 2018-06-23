@@ -37,6 +37,13 @@ public class UserDetailPresenter implements UserDetailContract.Presenter {
     }
 
     private void openUser() {
+
+        if(userId == null || userId.isEmpty()){
+            userDetailView.showMissingUser();
+            return;
+        }
+
+        userDetailView.setLoadingIndicator(true);
         usersRepository.getPhoto(userId, new UsersDataSource.LoadPhotoCallback() {
             @Override
             public void onPhotoLoaded(Photo photo) {
@@ -76,8 +83,10 @@ public class UserDetailPresenter implements UserDetailContract.Presenter {
 
                     @Override
                     public void onDataNotAvailable() {
-
-            }
+                        if(!userDetailView.isActive())
+                            return;
+                        userDetailView.showMissingUser();
+                    }
         });
     }
 
