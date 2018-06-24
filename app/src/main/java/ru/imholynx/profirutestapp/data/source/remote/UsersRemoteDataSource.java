@@ -5,6 +5,7 @@ import android.os.Looper;
 
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
+import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
@@ -28,13 +29,6 @@ import ru.imholynx.profirutestapp.data.source.UsersDataSource;
 public class UsersRemoteDataSource implements UsersDataSource {
 
     private static UsersRemoteDataSource INSTANCE;
-    private final static Map<String, User> USERS_SERVICE_DATA;
-
-    static {
-        USERS_SERVICE_DATA = new LinkedHashMap<>();
-        USERS_SERVICE_DATA.put("123", new User("123", "Ilya", "oputin", "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg" , "https://pp.userapi.com/c406531/v406531889/5ff9/ZGAOsMWtbiA.jpg"));
-        USERS_SERVICE_DATA.put("234", new User("234", "Petya", "sidorov", "https://pp.userapi.com/c623824/v623824643/29d14/6iJAz7zCnro.jpg", "https://pp.userapi.com/c623824/v623824643/29d14/6iJAz7zCnro.jpg"));
-    }
 
     public static UsersRemoteDataSource getInstance() {
         if (INSTANCE == null) {
@@ -70,6 +64,17 @@ public class UsersRemoteDataSource implements UsersDataSource {
                                 @Override
                                 public void run() {
                                     callback.onUsersLoaded(users);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onError(VKError error) {
+                            Handler refresh = new Handler(Looper.getMainLooper());
+                            refresh.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    callback.onDataNotAvailable();
                                 }
                             });
                         }
@@ -129,6 +134,7 @@ public class UsersRemoteDataSource implements UsersDataSource {
                             VKRequest request = new VKRequest("photos.getById",VKParameters.from(VKApiConst.PHOTOS,photoId,VKApiConst.EXTENDED,1));
                             request.unregisterObject();
                             request.executeSyncWithListener(new VKRequest.VKRequestListener() {
+
                                 @Override
                                 public void onComplete(VKResponse response) {
                                     try {
@@ -143,15 +149,48 @@ public class UsersRemoteDataSource implements UsersDataSource {
                                                 }
                                             });
                                         }
-
                                     } catch (JSONException e) {
-                                        e.printStackTrace();
+                                        Handler refresh = new Handler(Looper.getMainLooper());
+                                        refresh.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                callback.onDataNotAvailable();
+                                            }
+                                        });
                                     }
+                                }
+
+                                @Override
+                                public void onError(VKError error) {
+                                    Handler refresh = new Handler(Looper.getMainLooper());
+                                    refresh.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            callback.onDataNotAvailable();
+                                        }
+                                    });
                                 }
                             });
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            Handler refresh = new Handler(Looper.getMainLooper());
+                            refresh.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    callback.onDataNotAvailable();
+                                }
+                            });
                         }
+                    }
+
+                    @Override
+                    public void onError(VKError error) {
+                        Handler refresh = new Handler(Looper.getMainLooper());
+                        refresh.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                callback.onDataNotAvailable();
+                            }
+                        });
                     }
                 });
             }
