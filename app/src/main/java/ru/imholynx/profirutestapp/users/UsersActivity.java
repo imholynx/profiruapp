@@ -24,7 +24,9 @@ public class UsersActivity extends AppCompatActivity{
             ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), usersFragment, R.id.contentFrame);
         }
 
+
         mUsersPresenter = new UsersPresenter(UsersRepository.getInstance(UsersRemoteDataSource.getInstance()), usersFragment);
+
     }
 
 }

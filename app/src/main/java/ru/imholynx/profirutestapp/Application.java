@@ -11,7 +11,6 @@ import ru.imholynx.profirutestapp.util.BitmapLruCache;
 import ru.imholynx.profirutestapp.vk.LoginActivity;
 
 public class Application extends android.app.Application {
-
     VKAccessTokenTracker vkAccessTokenTracker = new VKAccessTokenTracker() {
         @Override
         public void onVKAccessTokenChanged(VKAccessToken oldToken, VKAccessToken newToken) {
